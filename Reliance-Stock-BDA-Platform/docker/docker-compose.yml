@@ -1,0 +1,146 @@
+version: '3.8'
+
+networks:
+  bda-network:
+    driver: bridge
+
+services:
+  # ==========================================
+  # 1. Apache ZooKeeper (for Kafka & HBase)
+  # ==========================================
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: bda-zookeeper
+    hostname: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - bda-network
+
+  # ==========================================
+  # 2. Apache Kafka (Speed Layer Broker)
+  # ==========================================
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: bda-kafka
+    hostname: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - bda-network
+
+  # ==========================================
+  # 3. Hadoop Master (HDFS NameNode + YARN + Spark Master)
+  # ==========================================
+  hadoop-master:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: reliance-bda:latest
+    container_name: hadoop-master
+    hostname: hadoop-master
+    environment:
+      - NODE_ROLE=master
+    ports:
+      - "9870:9870"   # HDFS NameNode Web UI
+      - "9000:9000"   # HDFS IPC
+      - "8088:8088"   # YARN ResourceManager Web UI
+      - "8080:8080"   # Spark Master Web UI
+      - "7077:7077"   # Spark Master IPC
+      - "19888:19888" # MapReduce JobHistory
+    volumes:
+      - ../:/app
+      - hadoop-master-name:/hadoop/dfs/name
+    networks:
+      - bda-network
+    depends_on:
+      - zookeeper
+      - kafka
+
+  # ==========================================
+  # 4. Hadoop DataNode (HDFS Storage Node + YARN NodeManager)
+  # ==========================================
+  hadoop-datanode:
+    image: reliance-bda:latest
+    container_name: hadoop-datanode
+    hostname: hadoop-datanode
+    environment:
+      - NODE_ROLE=datanode
+    ports:
+      - "9864:9864"   # HDFS DataNode Web UI
+    volumes:
+      - ../:/app
+      - hadoop-datanode-data:/hadoop/dfs/data
+    networks:
+      - bda-network
+    depends_on:
+      - hadoop-master
+
+  # ==========================================
+  # 5. Apache Hive Server & Metastore
+  # ==========================================
+  hive-server:
+    image: bde2020/hive:2.3.2-postgresql-metastore
+    container_name: bda-hive-server
+    hostname: hive-server
+    environment:
+      HIVE_CORE_CONF_fs_defaultFS: "hdfs://hadoop-master:9000"
+    ports:
+      - "10000:10000" # HiveServer2 Thrift
+      - "10002:10002" # Hive Web UI
+    networks:
+      - bda-network
+    depends_on:
+      - hadoop-master
+
+  # ==========================================
+  # 6. Apache HBase Master (Fast Serving Store)
+  # ==========================================
+  hbase-master:
+    image: dajobe/hbase:latest
+    container_name: bda-hbase-master
+    hostname: hbase-master
+    ports:
+      - "16010:16010" # HBase Master Web UI
+      - "9090:9090"   # HBase Thrift Server
+    networks:
+      - bda-network
+    depends_on:
+      - zookeeper
+      - hadoop-master
+
+  # ==========================================
+  # 7. Streamlit Presentation Dashboard
+  # ==========================================
+  dashboard:
+    image: reliance-bda:latest
+    container_name: bda-dashboard
+    hostname: dashboard
+    environment:
+      - NODE_ROLE=dashboard
+    ports:
+      - "8501:8501"   # Streamlit UI
+    volumes:
+      - ../:/app
+    networks:
+      - bda-network
+    depends_on:
+      - hadoop-master
+    command: ["streamlit", "run", "module_3_dashboard/app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+
+volumes:
+  hadoop-master-name:
+  hadoop-datanode-data:

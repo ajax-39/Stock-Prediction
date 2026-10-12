@@ -1,0 +1,27 @@
+[
+  {
+    "rowkey": "RELIANCE#8208205401271",
+    "ticker": "RELIANCE",
+    "created_at": "2026-10-12T14:13:18.728991",
+    "cf_tick": {
+      "ltp": "2745.50",
+      "volume": "3200",
+      "bid": "2745.20",
+      "ask": "2745.80",
+      "timestamp": "2026-10-12T14:13:18.729007"
+    },
+    "cf_score": {
+      "T": "74.5",
+      "F": "68.0",
+      "N": "78.2",
+      "R": "65.0",
+      "composite": "72.4"
+    },
+    "cf_pred": {
+      "predicted_close": "2768.40",
+      "direction": "UP",
+      "signal": "BUY",
+      "mae_range": "24.50"
+    }
+  }
+]
