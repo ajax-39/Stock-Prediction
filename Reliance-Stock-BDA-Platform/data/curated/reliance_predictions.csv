@@ -1,2 +1,2 @@
 trade_date,target_date,ticker,current_close,predicted_close,predicted_return_pct,lower_bound,upper_bound,direction,signal,confidence_pct,mae_range,composite_score,technical_score,news_score,created_at
-2025-12-31,2026-01-01,RELIANCE,17621.12,17647.55,0.15,17407.61,17887.49,FLAT,HOLD,55.0,239.94,53.46,53.33,50.0,2026-10-12T14:28:04.265791
+2025-12-31,2026-01-01,RELIANCE,17621.12,17647.55,0.15,17407.61,17887.49,FLAT,HOLD,55.0,239.94,53.46,53.33,50.0,2026-10-12T22:03:15.228351

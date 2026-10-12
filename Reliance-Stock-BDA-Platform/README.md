@@ -118,17 +118,21 @@ Reliance-Stock-BDA-Platform/
 
 ## 🚀 Quickstart & Execution
 
-### 1. Run the Entire End-to-End Pipeline in One Command
+### 1. Run Everything in One Single Command (Recommended)
 ```bash
-python orchestrator.py
+python run.py
 ```
-*Executes Kaggle ingestion, news sentiment parsing, Pig deduplication, Hadoop MapReduce momentum, PySpark indicators, 4-factor scoring, MLlib model training, and next-day inference.*
+*Or simply type `run` in your terminal or double-click `run.bat`.*
+*This automatically executes the full BDA pipeline (Kaggle ingestion, Pig ETL, MapReduce, Spark, MLlib model training) and opens the interactive Streamlit dashboard in your web browser at `http://localhost:8501`.*
 
-### 2. Launch the Streamlit Interactive Dashboard
+### 2. Optional: Run Specific Components
 ```bash
-streamlit run module_3_dashboard/app.py
+# Run only the data & ML pipeline without launching the UI
+python run.py --pipeline-only
+
+# Launch the dashboard UI immediately using cached artifacts
+python run.py --dashboard-only
 ```
-Open your browser at `http://localhost:8501`.
 
 ### 3. Running with Distributed Docker Cluster
 ```bash

@@ -1,5 +1,529 @@
 [
   {
+    "rowkey": "RELIANCE#8208177202616",
+    "ticker": "RELIANCE",
+    "created_at": "2026-10-12T22:03:17.383105",
+    "cf_tick": {
+      "ltp": "2748.37",
+      "volume": "183",
+      "bid": "2748.12",
+      "ask": "2748.62",
+      "timestamp": "2026-10-12T22:03:17.383046"
+    },
+    "cf_score": {
+      "R": "43.78"
+    },
+    "cf_pred": {
+      "predicted_close": "2768.40",
+      "direction": "UP",
+      "signal": "BUY",
+      "mae_range": "24.50"
+    }
+  },
+  {
+    "rowkey": "RELIANCE#8208177202841",
+    "ticker": "RELIANCE",
+    "created_at": "2026-10-12T22:03:17.158169",
+    "cf_tick": {
+      "ltp": "2748.92",
+      "volume": "767",
+      "bid": "2748.67",
+      "ask": "2749.17",
+      "timestamp": "2026-10-12T22:03:17.158097"
+    },
+    "cf_score": {
+      "R": "44.53"
+    },
+    "cf_pred": {
+      "predicted_close": "2768.40",
+      "direction": "UP",
+      "signal": "BUY",
+      "mae_range": "24.50"
+    }
+  },
+  {
+    "rowkey": "RELIANCE#8208177203064",
+    "ticker": "RELIANCE",
+    "created_at": "2026-10-12T22:03:16.935525",
+    "cf_tick": {
+      "ltp": "2749.5",
+      "volume": "116",
+      "bid": "2749.25",
+      "ask": "2749.75",
+      "timestamp": "2026-10-12T22:03:16.935433"
+    },
+    "cf_score": {
+      "R": "47.92"
+    },
+    "cf_pred": {
+      "predicted_close": "2768.40",
+      "direction": "UP",
+      "signal": "BUY",
+      "mae_range": "24.50"
+    }
+  },
+  {
+    "rowkey": "RELIANCE#8208177203285",
+    "ticker": "RELIANCE",
+    "created_at": "2026-10-12T22:03:16.714211",
+    "cf_tick": {
+      "ltp": "2749.69",
+      "volume": "212",
+      "bid": "2749.44",
+      "ask": "2749.94",
+      "timestamp": "2026-10-12T22:03:16.714166"
+    },
+    "cf_score": {
+      "R": "42.45"
+    },
+    "cf_pred": {
+      "predicted_close": "2768.40",
+      "direction": "UP",
+      "signal": "BUY",
+      "mae_range": "24.50"
+    }
+  },
+  {
+    "rowkey": "RELIANCE#8208177203510",
+    "ticker": "RELIANCE",
+    "created_at": "2026-10-12T22:03:16.489985",
+    "cf_tick": {
+      "ltp": "2750.35",
+      "volume": "403",
+      "bid": "2750.1",
+      "ask": "2750.6",
+      "timestamp": "2026-10-12T22:03:16.489934"
+    },
+    "cf_score": {
+      "R": "44.47"
+    },
+    "cf_pred": {
+      "predicted_close": "2768.40",
+      "direction": "UP",
+      "signal": "BUY",
+      "mae_range": "24.50"
+    }
+  },
+  {
+    "rowkey": "RELIANCE#8208177203730",
+    "ticker": "RELIANCE",
+    "created_at": "2026-10-12T22:03:16.269043",
+    "cf_tick": {
+      "ltp": "2750.88",
+      "volume": "423",
+      "bid": "2750.63",
+      "ask": "2751.13",
+      "timestamp": "2026-10-12T22:03:16.268989"
+    },
+    "cf_score": {
+      "R": "51.13"
+    },
+    "cf_pred": {
+      "predicted_close": "2768.40",
+      "direction": "UP",
+      "signal": "BUY",
+      "mae_range": "24.50"
+    }
+  },
+  {
+    "rowkey": "RELIANCE#8208177203955",
+    "ticker": "RELIANCE",
+    "created_at": "2026-10-12T22:03:16.044588",
+    "cf_tick": {
+      "ltp": "2750.86",
+      "volume": "689",
+      "bid": "2750.61",
+      "ask": "2751.11",
+      "timestamp": "2026-10-12T22:03:16.044538"
+    },
+    "cf_score": {
+      "R": "56.39"
+    },
+    "cf_pred": {
+      "predicted_close": "2768.40",
+      "direction": "UP",
+      "signal": "BUY",
+      "mae_range": "24.50"
+    }
+  },
+  {
+    "rowkey": "RELIANCE#8208177204178",
+    "ticker": "RELIANCE",
+    "created_at": "2026-10-12T22:03:15.821761",
+    "cf_tick": {
+      "ltp": "2750.44",
+      "volume": "130",
+      "bid": "2750.19",
+      "ask": "2750.69",
+      "timestamp": "2026-10-12T22:03:15.821704"
+    },
+    "cf_score": {
+      "R": "41.06"
+    },
+    "cf_pred": {
+      "predicted_close": "2768.40",
+      "direction": "UP",
+      "signal": "BUY",
+      "mae_range": "24.50"
+    }
+  },
+  {
+    "rowkey": "RELIANCE#8208177204398",
+    "ticker": "RELIANCE",
+    "created_at": "2026-10-12T22:03:15.601084",
+    "cf_tick": {
+      "ltp": "2751.21",
+      "volume": "435",
+      "bid": "2750.96",
+      "ask": "2751.46",
+      "timestamp": "2026-10-12T22:03:15.601025"
+    },
+    "cf_score": {
+      "R": "54.7"
+    },
+    "cf_pred": {
+      "predicted_close": "2768.40",
+      "direction": "UP",
+      "signal": "BUY",
+      "mae_range": "24.50"
+    }
+  },
+  {
+    "rowkey": "RELIANCE#8208177204620",
+    "ticker": "RELIANCE",
+    "created_at": "2026-10-12T22:03:15.379889",
+    "cf_tick": {
+      "ltp": "2750.89",
+      "volume": "768",
+      "bid": "2750.64",
+      "ask": "2751.14",
+      "timestamp": "2026-10-12T22:03:15.379866"
+    },
+    "cf_score": {
+      "R": "62.24"
+    },
+    "cf_pred": {
+      "predicted_close": "2768.40",
+      "direction": "UP",
+      "signal": "BUY",
+      "mae_range": "24.50"
+    }
+  },
+  {
+    "rowkey": "RELIANCE#8208177204754",
+    "ticker": "RELIANCE",
+    "created_at": "2026-10-12T22:03:15.245502",
+    "cf_tick": {
+      "ltp": "2745.50",
+      "volume": "3200",
+      "bid": "2745.20",
+      "ask": "2745.80",
+      "timestamp": "2026-10-12T22:03:15.245508"
+    },
+    "cf_score": {
+      "T": "74.5",
+      "F": "68.0",
+      "N": "78.2",
+      "R": "65.0",
+      "composite": "72.4"
+    },
+    "cf_pred": {
+      "predicted_close": "17647.55",
+      "direction": "FLAT",
+      "signal": "HOLD",
+      "confidence": "55.0",
+      "mae_range": "239.94",
+      "target_date": "2026-01-01"
+    }
+  },
+  {
+    "rowkey": "RELIANCE#8208177206033",
+    "ticker": "RELIANCE",
+    "created_at": "2026-10-12T22:03:13.966745",
+    "cf_tick": {
+      "ltp": "2745.50",
+      "volume": "3200",
+      "bid": "2745.20",
+      "ask": "2745.80",
+      "timestamp": "2026-10-12T22:03:13.966752"
+    },
+    "cf_score": {
+      "T": "53.33",
+      "F": "69.5",
+      "N": "50.0",
+      "R": "38.2",
+      "composite": "53.46"
+    },
+    "cf_pred": {
+      "predicted_close": "2768.40",
+      "direction": "UP",
+      "signal": "BUY",
+      "mae_range": "24.50"
+    }
+  },
+  {
+    "rowkey": "RELIANCE#8208177362019",
+    "ticker": "RELIANCE",
+    "created_at": "2026-10-12T22:00:37.980912",
+    "cf_tick": {
+      "ltp": "2748.42",
+      "volume": "224",
+      "bid": "2748.17",
+      "ask": "2748.67",
+      "timestamp": "2026-10-12T22:00:37.980891"
+    },
+    "cf_score": {
+      "R": "42.63"
+    },
+    "cf_pred": {
+      "predicted_close": "2768.40",
+      "direction": "UP",
+      "signal": "BUY",
+      "mae_range": "24.50"
+    }
+  },
+  {
+    "rowkey": "RELIANCE#8208177362238",
+    "ticker": "RELIANCE",
+    "created_at": "2026-10-12T22:00:37.761664",
+    "cf_tick": {
+      "ltp": "2749.07",
+      "volume": "727",
+      "bid": "2748.82",
+      "ask": "2749.32",
+      "timestamp": "2026-10-12T22:00:37.761638"
+    },
+    "cf_score": {
+      "R": "59.07"
+    },
+    "cf_pred": {
+      "predicted_close": "2768.40",
+      "direction": "UP",
+      "signal": "BUY",
+      "mae_range": "24.50"
+    }
+  },
+  {
+    "rowkey": "RELIANCE#8208177362460",
+    "ticker": "RELIANCE",
+    "created_at": "2026-10-12T22:00:37.539371",
+    "cf_tick": {
+      "ltp": "2748.43",
+      "volume": "121",
+      "bid": "2748.18",
+      "ask": "2748.68",
+      "timestamp": "2026-10-12T22:00:37.539338"
+    },
+    "cf_score": {
+      "R": "45.79"
+    },
+    "cf_pred": {
+      "predicted_close": "2768.40",
+      "direction": "UP",
+      "signal": "BUY",
+      "mae_range": "24.50"
+    }
+  },
+  {
+    "rowkey": "RELIANCE#8208177362683",
+    "ticker": "RELIANCE",
+    "created_at": "2026-10-12T22:00:37.316178",
+    "cf_tick": {
+      "ltp": "2748.8",
+      "volume": "948",
+      "bid": "2748.55",
+      "ask": "2749.05",
+      "timestamp": "2026-10-12T22:00:37.316150"
+    },
+    "cf_score": {
+      "R": "61.84"
+    },
+    "cf_pred": {
+      "predicted_close": "2768.40",
+      "direction": "UP",
+      "signal": "BUY",
+      "mae_range": "24.50"
+    }
+  },
+  {
+    "rowkey": "RELIANCE#8208177362904",
+    "ticker": "RELIANCE",
+    "created_at": "2026-10-12T22:00:37.095462",
+    "cf_tick": {
+      "ltp": "2747.97",
+      "volume": "310",
+      "bid": "2747.72",
+      "ask": "2748.22",
+      "timestamp": "2026-10-12T22:00:37.095440"
+    },
+    "cf_score": {
+      "R": "42.6"
+    },
+    "cf_pred": {
+      "predicted_close": "2768.40",
+      "direction": "UP",
+      "signal": "BUY",
+      "mae_range": "24.50"
+    }
+  },
+  {
+    "rowkey": "RELIANCE#8208177363124",
+    "ticker": "RELIANCE",
+    "created_at": "2026-10-12T22:00:36.875315",
+    "cf_tick": {
+      "ltp": "2748.64",
+      "volume": "983",
+      "bid": "2748.39",
+      "ask": "2748.89",
+      "timestamp": "2026-10-12T22:00:36.875289"
+    },
+    "cf_score": {
+      "R": "61.62"
+    },
+    "cf_pred": {
+      "predicted_close": "2768.40",
+      "direction": "UP",
+      "signal": "BUY",
+      "mae_range": "24.50"
+    }
+  },
+  {
+    "rowkey": "RELIANCE#8208177363345",
+    "ticker": "RELIANCE",
+    "created_at": "2026-10-12T22:00:36.654679",
+    "cf_tick": {
+      "ltp": "2747.84",
+      "volume": "1171",
+      "bid": "2747.59",
+      "ask": "2748.09",
+      "timestamp": "2026-10-12T22:00:36.654650"
+    },
+    "cf_score": {
+      "R": "44.86"
+    },
+    "cf_pred": {
+      "predicted_close": "2768.40",
+      "direction": "UP",
+      "signal": "BUY",
+      "mae_range": "24.50"
+    }
+  },
+  {
+    "rowkey": "RELIANCE#8208177363564",
+    "ticker": "RELIANCE",
+    "created_at": "2026-10-12T22:00:36.435854",
+    "cf_tick": {
+      "ltp": "2748.46",
+      "volume": "1136",
+      "bid": "2748.21",
+      "ask": "2748.71",
+      "timestamp": "2026-10-12T22:00:36.435822"
+    },
+    "cf_score": {
+      "R": "45.98"
+    },
+    "cf_pred": {
+      "predicted_close": "2768.40",
+      "direction": "UP",
+      "signal": "BUY",
+      "mae_range": "24.50"
+    }
+  },
+  {
+    "rowkey": "RELIANCE#8208177363782",
+    "ticker": "RELIANCE",
+    "created_at": "2026-10-12T22:00:36.217580",
+    "cf_tick": {
+      "ltp": "2748.98",
+      "volume": "351",
+      "bid": "2748.73",
+      "ask": "2749.23",
+      "timestamp": "2026-10-12T22:00:36.217550"
+    },
+    "cf_score": {
+      "R": "44.84"
+    },
+    "cf_pred": {
+      "predicted_close": "2768.40",
+      "direction": "UP",
+      "signal": "BUY",
+      "mae_range": "24.50"
+    }
+  },
+  {
+    "rowkey": "RELIANCE#8208177364003",
+    "ticker": "RELIANCE",
+    "created_at": "2026-10-12T22:00:35.996366",
+    "cf_tick": {
+      "ltp": "2749.47",
+      "volume": "428",
+      "bid": "2749.22",
+      "ask": "2749.72",
+      "timestamp": "2026-10-12T22:00:35.996285"
+    },
+    "cf_score": {
+      "R": "44.47"
+    },
+    "cf_pred": {
+      "predicted_close": "2768.40",
+      "direction": "UP",
+      "signal": "BUY",
+      "mae_range": "24.50"
+    }
+  },
+  {
+    "rowkey": "RELIANCE#8208177364189",
+    "ticker": "RELIANCE",
+    "created_at": "2026-10-12T22:00:35.810509",
+    "cf_tick": {
+      "ltp": "2745.50",
+      "volume": "3200",
+      "bid": "2745.20",
+      "ask": "2745.80",
+      "timestamp": "2026-10-12T22:00:35.810519"
+    },
+    "cf_score": {
+      "T": "74.5",
+      "F": "68.0",
+      "N": "78.2",
+      "R": "65.0",
+      "composite": "72.4"
+    },
+    "cf_pred": {
+      "predicted_close": "17647.55",
+      "direction": "FLAT",
+      "signal": "HOLD",
+      "confidence": "55.0",
+      "mae_range": "239.94",
+      "target_date": "2026-01-01"
+    }
+  },
+  {
+    "rowkey": "RELIANCE#8208177366097",
+    "ticker": "RELIANCE",
+    "created_at": "2026-10-12T22:00:33.902879",
+    "cf_tick": {
+      "ltp": "2745.50",
+      "volume": "3200",
+      "bid": "2745.20",
+      "ask": "2745.80",
+      "timestamp": "2026-10-12T22:00:33.902884"
+    },
+    "cf_score": {
+      "T": "53.33",
+      "F": "69.5",
+      "N": "50.0",
+      "R": "38.2",
+      "composite": "53.46"
+    },
+    "cf_pred": {
+      "predicted_close": "2768.40",
+      "direction": "UP",
+      "signal": "BUY",
+      "mae_range": "24.50"
+    }
+  },
+  {
     "rowkey": "RELIANCE#8208204513646",
     "ticker": "RELIANCE",
     "created_at": "2026-10-12T14:28:06.353696",
