@@ -124,7 +124,9 @@ with st.container(border=True):
             ss.sim_tick_armed = False
             st.rerun()
     with c5:
-        slider_val = st.slider("Timeline", 0, total_steps - 1, ss.sim_step, format="Day %d", label_visibility="collapsed", key="timeline")
+        # No key on purpose: a keyed slider keeps its own value and would ignore sim_step
+        # after Play / Next advance it, then "correct" the step back on the next interaction.
+        slider_val = st.slider("Timeline", 0, total_steps - 1, ss.sim_step, format="Day %d", label_visibility="collapsed")
         if slider_val != ss.sim_step and not ss.is_playing:
             ss.sim_step = slider_val
             st.rerun()

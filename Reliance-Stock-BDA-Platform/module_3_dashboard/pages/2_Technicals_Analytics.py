@@ -35,19 +35,19 @@ if feat.empty:
 # -----------------------------------------------------------------------------
 # Controls
 # -----------------------------------------------------------------------------
-ctl1, ctl2, ctl3 = st.columns([1.7, 2, 1.4], vertical_alignment="bottom")
+ctl1, ctl2 = st.columns([1.25, 1.75], vertical_alignment="bottom")
 with ctl1:
     rng = st.segmented_control("Range", ["60D", "180D", "1Y", "All", "Custom"], default="180D", key="tech_range")
 with ctl2:
     overlays = st.pills("Overlays", ["EMA 20", "EMA 50", "VWAP", "Bollinger Bands"], selection_mode="multi",
                         default=["EMA 20"], key="tech_overlays") or []
-with ctl3:
-    if rng == "Custom":
-        plot_df = C.date_range_filter(feat, "trade_date", key="tech_custom", default_days=120, label="From – to")
-    else:
-        n = {"60D": 60, "180D": 180, "1Y": 252, "All": len(feat)}.get(rng or "180D", 180)
-        plot_df = feat.tail(min(n, len(feat)))
-        st.caption(f"{len(plot_df):,} sessions · {C.fmt_date(plot_df['trade_date'].iloc[0])} – {C.fmt_date(plot_df['trade_date'].iloc[-1])}")
+if rng == "Custom":
+    plot_df = C.date_range_filter(feat, "trade_date", key="tech_custom", default_days=120, label="From – to")
+else:
+    n = {"60D": 60, "180D": 180, "1Y": 252, "All": len(feat)}.get(rng or "180D", 180)
+    plot_df = feat.tail(min(n, len(feat)))
+if not plot_df.empty:
+    st.caption(f"{len(plot_df):,} sessions · {C.fmt_date(plot_df['trade_date'].iloc[0])} – {C.fmt_date(plot_df['trade_date'].iloc[-1])}")
 
 if plot_df.empty:
     C.empty_state("No sessions in range", "Widen the date range.")

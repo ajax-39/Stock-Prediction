@@ -7,7 +7,7 @@ A distributed Big Data Analytics platform designed to predict next-day closing p
 4. **Streaming Broker Ticks & Real-Time Scoring via Kafka & Spark Streaming**
 5. **Distributed Storage Lake via HDFS, Hive, and HBase**
 6. **Machine Learning Pipeline via Spark MLlib (Random Forest & GBT Regressors)**
-7. **Interactive 3-Page Presentation Cockpit via Streamlit & Plotly**
+7. **Stock sight — the Streamlit & Plotly dashboard (overview, pipeline & data, technicals, prediction, backtest replay)**
 
 ---
 
@@ -16,8 +16,8 @@ A distributed Big Data Analytics platform designed to predict next-day closing p
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
 │                        PRESENTATION LAYER                              │
-│            Streamlit Multi-Page Cockpit (Port 8501)                    │
-│   Page 1: Ingestion & Lake  │ Page 2: Indicators  │ Page 3: Prediction │
+│            Stock sight · Streamlit multipage app (Port 8501)           │
+│  Overview │ Pipeline & Data │ Technicals │ Prediction │ Backtest replay │
 └──────────────────────────┬───────────────────────────┬─────────────────┘
                            │                           │
 ┌──────────────────────────┴───────────────────────────┴─────────────────┐
@@ -104,17 +104,37 @@ Reliance-Stock-BDA-Platform/
 │   └── prediction/
 │       ├── train_mllib_model.py        # MLlib Regression Pipeline with strict time-series split
 │       └── predict_next_day.py         # Next-day price, confidence range & BUY/SELL signals
-└── module_3_dashboard/
-    ├── app.py                          # Streamlit application entrypoint & telemetry
-    ├── data_loader.py                  # Resilient data binding provider
-    ├── styles.py                       # Modern glassmorphism CSS design system
+└── module_3_dashboard/                 # Stock sight — market foresight for Reliance Industries
+    ├── app.py                          # Entrypoint: page config, CSS, st.navigation, sidebar, app bar, ticker
+    ├── theme.py                        # Design tokens (palette, type), CSS, shared Plotly template, logo SVG
+    ├── components.py                   # Reusable UI helpers (tiles, badges, gauge, fan chart, tables, brief)
+    ├── data_loader.py                  # Data provider + file metadata, data-quality and source detection
+    ├── simulator_engine.py             # Backtest computations (unchanged by the UI)
+    ├── styles.py                       # Backward-compatible shim re-exporting the CSS from theme.py
+    ├── assets/                         # SVG favicon and wordmark
+    ├── docs/                           # Design brief, parity checklist, mockup, screenshots
     └── pages/
-        ├── 1_Pipeline_Ingestion.py     # Module 1 UI: BDA pipeline diagram & raw data inspect
-        ├── 2_Technicals_Analytics.py   # Module 2 UI: Plotly Candlestick, EMA, VWAP, Gauges
-        └── 3_Prediction_Decision.py    # Module 3 UI: Hero forecast, signal, drivers, backtest
+        ├── 0_Overview.py               # Last close, tomorrow's call, brief, composite, pipeline health, news
+        ├── 1_Pipeline_Ingestion.py     # Stage status, data quality, sources, HDFS / Hive inspectors
+        ├── 2_Technicals_Analytics.py   # Price chart with overlays, RSI / MACD, indicator summary, calendar
+        ├── 3_Prediction_Decision.py    # Forecast, signal rules, model card vs naive baseline, importances
+        └── 4_Backtest_Simulator.py     # Day-by-day replay with media-player controls, equity, ledger
 ```
 
 ---
+
+## 📊 Stock sight dashboard
+
+**Stock sight** — *Market foresight for Reliance Industries* — is the presentation layer (`module_3_dashboard/`).
+It answers four questions on every page within a few seconds: what is the call, how confident is it, why, and can the data be trusted.
+
+* **Overview** — last close, day/52-week ranges, tomorrow's call with a ±MAE fan, a rule-based "today's brief", the composite gauge and contribution waterfall, pipeline freshness and the news feed.
+* **Pipeline & Data** — stage status read from the staged files, a data-quality panel (missing values, date gaps, news→price join rate), the three sources and the HDFS / Hive inspectors.
+* **Technicals** — candles with EMA 20/50, VWAP and Bollinger overlays, synced volume / RSI / MACD, an indicator → state → score table, momentum and a daily-returns calendar.
+* **Prediction** — forecast and signal from `reliance_predictions.csv`, the rules that fired, an honest model card against the naive baseline, feature importances and prediction history.
+* **Backtest** — the day-by-day replay (Space play/pause, → next day, Home reset) with equity curve, trade toasts and a tinted ledger.
+
+Design tokens live in `module_3_dashboard/theme.py` and are mirrored in `.streamlit/config.toml`; see `module_3_dashboard/docs/DESIGN_BRIEF.md`.
 
 ## 🚀 Quickstart & Execution
 
@@ -123,7 +143,7 @@ Reliance-Stock-BDA-Platform/
 python run.py
 ```
 *Or simply type `run` in your terminal or double-click `run.bat`.*
-*This automatically executes the full BDA pipeline (Kaggle ingestion, Pig ETL, MapReduce, Spark, MLlib model training) and opens the interactive Streamlit dashboard in your web browser at `http://localhost:8501`.*
+*This automatically executes the full BDA pipeline (Kaggle ingestion, Pig ETL, MapReduce, Spark, MLlib model training) and opens Stock sight in your web browser at `http://localhost:8501`.*
 
 ### 2. Optional: Run Specific Components
 ```bash
@@ -144,7 +164,7 @@ Access cluster interfaces:
 * **Spark Master Web UI:** `http://localhost:8080`
 * **YARN ResourceManager:** `http://localhost:8088`
 * **HBase Master Web UI:** `http://localhost:16010`
-* **Streamlit Dashboard:** `http://localhost:8501`
+* **Stock sight dashboard:** `http://localhost:8501`
 
 ---
 

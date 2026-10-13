@@ -364,6 +364,7 @@ section[data-testid="stSidebar"] [data-testid="stSidebarNav"] a:hover {{ backgro
 .ss-banner.hold {{ background: rgba(96,165,250,.10); border-color: rgba(96,165,250,.35); color: var(--ss-blue); }}
 .ss-banner.cash {{ background: var(--ss-s2); border-color: var(--ss-border2); color: var(--ss-text2); }}
 .ss-footer {{ margin-top:40px; padding-top:14px; border-top:1px solid var(--ss-border); font-size: var(--ss-xs); color: var(--ss-muted); letter-spacing:.06em; text-transform:uppercase; display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; }}
+.st-key-btn_play kbd, .st-key-btn_next kbd, .st-key-btn_reset kbd {{ display:none; }}
 .ss-kbd {{ display:inline-block; font-family: var(--ss-mono); font-size: var(--ss-xs); padding:1px 6px; border:1px solid var(--ss-border2); border-bottom-width:2px; border-radius:4px; color: var(--ss-text2); background: var(--ss-s2); }}
 
 /* ---------- native widget polish ---------- */
