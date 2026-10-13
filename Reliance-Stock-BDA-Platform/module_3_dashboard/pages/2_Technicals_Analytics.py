@@ -35,7 +35,7 @@ if feat.empty:
 # -----------------------------------------------------------------------------
 # Controls
 # -----------------------------------------------------------------------------
-ctl1, ctl2, ctl3 = st.columns([1.3, 2, 1.6], vertical_alignment="bottom")
+ctl1, ctl2, ctl3 = st.columns([1.7, 2, 1.4], vertical_alignment="bottom")
 with ctl1:
     rng = st.segmented_control("Range", ["60D", "180D", "1Y", "All", "Custom"], default="180D", key="tech_range")
 with ctl2:
@@ -80,7 +80,7 @@ fig.add_trace(go.Scatter(x=x, y=plot_df["macd"], name="MACD", line=dict(color=T.
 fig.add_trace(go.Scatter(x=x, y=plot_df["macd_signal"], name="Signal", line=dict(color=T.WARN, width=1.3), showlegend=False), row=4, col=1)
 hist_colors = [T.UP if h >= 0 else T.DOWN for h in plot_df["macd_hist"]]
 fig.add_trace(go.Bar(x=x, y=plot_df["macd_hist"], name="Histogram", marker_color=hist_colors, opacity=0.7, showlegend=False), row=4, col=1)
-fig.update_layout(height=760, xaxis_rangeslider_visible=False, margin=dict(l=8, r=8, t=30, b=8),
+fig.update_layout(height=760, xaxis_rangeslider_visible=False, margin=dict(l=8, r=72, t=30, b=8),
                   xaxis4=dict(rangeselector=None))
 for i, label in enumerate(["₹", "Vol", "RSI", "MACD"], start=1):
     fig.update_yaxes(title_text=label, title_standoff=4, row=i, col=1)
@@ -132,7 +132,7 @@ else:
         fig_s.add_trace(go.Scatter(x=sc_hist["trade_date"], y=sc_hist[col], name=name, line=dict(color=color, width=2.2 if col == "composite_score" else 1.2)))
     fig_s.add_hrect(y0=C.BUY_MIN, y1=100, fillcolor="rgba(34,197,94,0.05)", line_width=0)
     fig_s.add_hrect(y0=0, y1=C.SELL_MAX, fillcolor="rgba(242,85,90,0.05)", line_width=0)
-    fig_s.update_layout(height=240, yaxis=dict(range=[0, 100], tickvals=[0, C.SELL_MAX, C.BUY_MIN, C.STRONG_BUY_MIN, 100]), xaxis=dict(showgrid=False))
+    fig_s.update_layout(height=240, margin=dict(l=8, r=40, t=28, b=8), yaxis=dict(range=[0, 100], tickvals=[0, C.SELL_MAX, C.BUY_MIN, C.STRONG_BUY_MIN, 100]), xaxis=dict(showgrid=False))
     C.chart(fig_s, key="tech_scores")
 
 # -----------------------------------------------------------------------------
