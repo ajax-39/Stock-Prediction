@@ -188,3 +188,16 @@ st.markdown(f"""
 | **Root Mean Squared Error (RMSE)** | **₹{metrics.get('rmse_rupees', 32.80):.2f}** | ₹{metrics.get('baseline_rmse', 35.10):.2f} | ✅ Penalizes outliers |
 | **Directional Accuracy** | **{metrics.get('directional_accuracy_pct', 64.2):.1f}%** | 50.0% (Random Walk) | ✅ +14.2% Alpha Edge |
 """)
+
+st.markdown("---")
+st.markdown("""
+<div style="background:linear-gradient(135deg, rgba(56, 189, 248, 0.1) 0%, rgba(16, 185, 129, 0.15) 100%); border:1px solid rgba(16, 185, 129, 0.3); border-radius:12px; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+    <div>
+        <div style="font-weight:700; color:#f9fafb; font-size:1.05rem;">⏱️ Test this model in real-time replay?</div>
+        <div style="color:#9ca3af; font-size:0.85rem; margin-top:2px;">Launch the <strong>1D Backtest Simulator</strong> (Page 4) to replay daily predictions, control playback speeds (1s - 10s), and track live green PnL.</div>
+    </div>
+    <div>
+        <span class="badge-signal-buy" style="font-size:0.82rem; padding:6px 14px;">Navigate to: Page 4 (Simulator)</span>
+    </div>
+</div>
+""", unsafe_allow_html=True)

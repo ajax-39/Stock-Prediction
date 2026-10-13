@@ -40,6 +40,7 @@ if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
 
+
 def check_and_install_dependencies():
     """Verifies critical packages and installs them if missing."""
     required = ["streamlit", "plotly", "pandas", "numpy"]

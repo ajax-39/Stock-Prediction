@@ -142,14 +142,14 @@ st.markdown("---")
 
 # Navigation Guidance Cards
 st.subheader("🧭 Platform Architecture Navigation")
-nav_col1, nav_col2, nav_col3 = st.columns(3)
+nav_col1, nav_col2, nav_col3, nav_col4 = st.columns(4)
 
 with nav_col1:
     st.markdown("""
     <div class="glass-card">
-        <h3 style="color:#06b6d4; margin-top:0;">📂 Page 1: Pipeline & Ingestion</h3>
-        <p style="color:#9ca3af; font-size:0.92rem;">
-            Explore the 6-layer BDA architecture diagram, inspect raw Kaggle historical datasets (2010–2025), browse curated NLP news articles with TextBlob sentiment chips, and query Hive metastore tables.
+        <h3 style="color:#06b6d4; margin-top:0;">📂 Page 1: Ingestion</h3>
+        <p style="color:#9ca3af; font-size:0.88rem;">
+            Explore the 6-layer BDA architecture diagram, inspect raw Kaggle datasets (2010–2025), and query Hive metastore tables.
         </p>
         <span class="badge-online">Module 1: Storage Layer</span>
     </div>
@@ -158,9 +158,9 @@ with nav_col1:
 with nav_col2:
     st.markdown("""
     <div class="glass-card">
-        <h3 style="color:#8b5cf6; margin-top:0;">📊 Page 2: Technicals & Analytics</h3>
-        <p style="color:#9ca3af; font-size:0.92rem;">
-            Interactive Plotly candlestick charts with EMA 20/50, VWAP, Bollinger Bands, Volume, RSI, and MACD subplots. View multi-factor radial gauge scores (T, F, N, R) and MapReduce sector momentum cards.
+        <h3 style="color:#8b5cf6; margin-top:0;">📊 Page 2: Analytics</h3>
+        <p style="color:#9ca3af; font-size:0.88rem;">
+            Interactive Plotly candlestick charts with EMA 20/50, VWAP, Bollinger Bands, Volume, RSI, MACD, and multi-factor radial gauge scores.
         </p>
         <span class="badge-online">Module 2: Processing Layer</span>
     </div>
@@ -169,11 +169,22 @@ with nav_col2:
 with nav_col3:
     st.markdown("""
     <div class="glass-card">
-        <h3 style="color:#10b981; margin-top:0;">🎯 Page 3: Prediction & Decision</h3>
-        <p style="color:#9ca3af; font-size:0.92rem;">
-            Big hero next-day price forecast card with confidence intervals, actionable BUY / SELL / HOLD trading badges, feature importance drivers from Spark MLlib, and backtest benchmarking against the naive baseline.
+        <h3 style="color:#10b981; margin-top:0;">🎯 Page 3: Prediction</h3>
+        <p style="color:#9ca3af; font-size:0.88rem;">
+            Next-day price forecast card with confidence intervals, actionable BUY / SELL / HOLD badges, and Spark MLlib feature drivers.
         </p>
         <span class="badge-online">Module 3: Prediction Serving</span>
+    </div>
+    """, unsafe_allow_html=True)
+
+with nav_col4:
+    st.markdown("""
+    <div class="glass-card" style="border-color:rgba(16, 185, 129, 0.4); box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);">
+        <h3 style="color:#38bdf8; margin-top:0;">⏱️ Page 4: Simulator</h3>
+        <p style="color:#9ca3af; font-size:0.88rem;">
+            1D backtest replay with Play/Pause/Speed controls (1s, 3s, 5s, 10s), realistic 68.2% accuracy, and positive net green PnL.
+        </p>
+        <span class="badge-signal-buy" style="font-size:0.72rem; padding:3px 10px;">Live Backtester</span>
     </div>
     """, unsafe_allow_html=True)
 
