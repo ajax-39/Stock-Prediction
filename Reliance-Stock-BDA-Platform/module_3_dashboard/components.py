@@ -237,11 +237,14 @@ _COUNTUP_JS = """
     var sign = el.getAttribute('data-sign') === '1'; var key = el.getAttribute('data-key');
     var from = (key && P.__ssPrev[key] !== undefined) ? P.__ssPrev[key] : 0;
     if (key) P.__ssPrev[key] = v;
-    if (reduce || from === v) { el.textContent = fmt(v, dec, kind, sign); return; }
-    var t0 = null, dur = 300;
-    function step(ts){ if (!t0) t0 = ts; var p = Math.min(1, (ts - t0)/dur); var e = 1 - Math.pow(1-p, 3);
-      el.textContent = fmt(from + (v-from)*e, dec, kind, sign); if (p < 1) P.requestAnimationFrame(step); }
+    var finalText = fmt(v, dec, kind, sign);
+    if (reduce || from === v || D.hidden) { el.textContent = finalText; return; }
+    var t0 = null, dur = 300, done = false;
+    function finish(){ if (!done) { done = true; el.textContent = finalText; } }
+    function step(ts){ if (done) return; if (!t0) t0 = ts; var p = Math.min(1, (ts - t0)/dur); var e = 1 - Math.pow(1-p, 3);
+      el.textContent = fmt(from + (v-from)*e, dec, kind, sign); if (p < 1) P.requestAnimationFrame(step); else finish(); }
     P.requestAnimationFrame(step);
+    P.setTimeout(finish, dur + 80);  /* rAF is paused in hidden tabs; never leave a half-counted number */
   }
   function scan(){ var els = D.querySelectorAll('.ss-count:not([data-ss-done])'); for (var i=0;i<els.length;i++) animate(els[i]); }
   if (P.__ssObserver) { try { P.__ssObserver.disconnect(); } catch(e){} }
@@ -611,9 +614,9 @@ def fig_importances(importances: dict, height: int = 320) -> go.Figure:
         textfont=dict(family=T.FONT_STACK_MONO, size=10, color=T.TEXT2),
         hovertemplate="%{y}: %{x:.2f}%<extra></extra>",
     ))
-    fig.update_layout(height=height, margin=dict(l=4, r=48, t=8, b=4), hovermode="closest",
+    fig.update_layout(height=height, margin=dict(l=8, r=48, t=8, b=4), hovermode="closest",
                       xaxis=dict(title="Relative importance (%)", range=[0, float(df["importance"].max()) * 118], showgrid=True),
-                      yaxis=dict(showgrid=False, side="left", tickfont=dict(size=11)))
+                      yaxis=dict(showgrid=False, side="left", tickfont=dict(size=11), automargin=True))
     return fig
 
 
