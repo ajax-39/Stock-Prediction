@@ -1,199 +1,147 @@
 """
-app.py — Main Entrypoint for Reliance Stock BDA Analytics Platform
-==================================================================
-Streamlit Cockpit with system status, global navigation, and live pipeline triggers.
+app.py — Stock sight entrypoint
+===============================
+Market foresight for Reliance Industries. One place for page config, CSS,
+navigation (st.navigation), the global sidebar, the app bar and the ticker tape.
 
 Usage:
     streamlit run module_3_dashboard/app.py --server.port 8501
 """
 
 import os
-import sys
-import datetime
 import subprocess
+import sys
+
 import streamlit as st
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-from module_3_dashboard.styles import CUSTOM_CSS
-from module_3_dashboard.data_loader import (
-    load_latest_serving_state,
-    load_predictions,
-    load_daily_scores,
-    load_engineered_features
-)
+from module_3_dashboard import components as C  # noqa: E402
+from module_3_dashboard import data_loader as dl  # noqa: E402
+from module_3_dashboard import theme as T  # noqa: E402
+
+HERE = os.path.dirname(os.path.abspath(__file__))
 
 # -----------------------------------------------------------------------------
-# App Configuration
+# One-time configuration: favicon, layout, CSS, Plotly template, logo
 # -----------------------------------------------------------------------------
+T.ensure_assets()
+T.register_plotly_template()
 st.set_page_config(
-    page_title="RELIANCE — BDA Stock Prediction Cockpit",
-    page_icon="📈",
+    page_title=T.APP_NAME,
+    page_icon=T.MARK_SVG_PATH,
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
 )
+C.inject_css()
+st.logo(T.WORDMARK_SVG_PATH, icon_image=T.MARK_SVG_PATH, size="large")
 
-st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+# -----------------------------------------------------------------------------
+# Navigation
+# -----------------------------------------------------------------------------
+PAGES = [
+    st.Page(os.path.join(HERE, "pages", "0_Overview.py"), title="Overview", icon=":material/visibility:", url_path="overview", default=True),
+    st.Page(os.path.join(HERE, "pages", "1_Pipeline_Ingestion.py"), title="Pipeline & Data", icon=":material/account_tree:", url_path="pipeline"),
+    st.Page(os.path.join(HERE, "pages", "2_Technicals_Analytics.py"), title="Technicals", icon=":material/candlestick_chart:", url_path="technicals"),
+    st.Page(os.path.join(HERE, "pages", "3_Prediction_Decision.py"), title="Prediction", icon=":material/insights:", url_path="prediction"),
+    st.Page(os.path.join(HERE, "pages", "4_Backtest_Simulator.py"), title="Backtest", icon=":material/replay:", url_path="backtest"),
+]
+pg = st.navigation(PAGES, position="sidebar")
+st.set_page_config(page_title=f"{T.APP_NAME} · {pg.title}")
+
+# -----------------------------------------------------------------------------
+# Shared data
+# -----------------------------------------------------------------------------
+B = C.load_bundle()
+forecast = B["forecast"]
+signal = forecast.get("signal") if forecast else None
+as_of = C.as_of_date(B)
+
+# -----------------------------------------------------------------------------
+# Pipeline trigger (same scripts, same order as before)
+# -----------------------------------------------------------------------------
+PIPELINE_STEPS = [
+    ("Apache Pig ETL", os.path.join(PROJECT_ROOT, "module_2_processing", "pig", "run_pig_etl.py")),
+    ("Spark feature engineering", os.path.join(PROJECT_ROOT, "module_2_processing", "spark", "spark_feature_engineering.py")),
+    ("Spark score engine", os.path.join(PROJECT_ROOT, "module_2_processing", "spark", "spark_score_engine.py")),
+    ("Next-day prediction", os.path.join(PROJECT_ROOT, "module_2_processing", "prediction", "predict_next_day.py")),
+]
+
+
+def run_pipeline() -> None:
+    with st.status("Running pipeline…", expanded=True) as status:
+        try:
+            for label, script in PIPELINE_STEPS:
+                st.write(f"▸ {label}")
+                subprocess.run([sys.executable, script], check=True, cwd=PROJECT_ROOT)
+            status.update(label="Pipeline finished", state="complete", expanded=False)
+            st.cache_data.clear()
+            st.toast("Pipeline finished · data refreshed", icon=":material/check_circle:")
+            st.rerun()
+        except subprocess.CalledProcessError as e:
+            status.update(label="Pipeline failed", state="error", expanded=True)
+            st.error(f"Step exited with code {e.returncode}: {os.path.basename(str(e.cmd[-1]))}")
+        except Exception as e:  # noqa: BLE001
+            status.update(label="Pipeline failed", state="error", expanded=True)
+            st.error(f"Execution notice: {e}")
 
 
 # -----------------------------------------------------------------------------
-# Market Hours Calculation (IST: 09:15 to 15:30, Mon-Fri)
-# -----------------------------------------------------------------------------
-def get_market_status():
-    now_utc = datetime.datetime.now(datetime.timezone.utc)
-    now_ist = now_utc + datetime.timedelta(hours=5, minutes=30)
-    is_weekday = now_ist.weekday() < 5
-    m_open = now_ist.replace(hour=9, minute=15, second=0, microsecond=0)
-    m_close = now_ist.replace(hour=15, minute=30, second=0, microsecond=0)
-
-    is_open = is_weekday and (m_open <= now_ist <= m_close)
-    time_str = now_ist.strftime("%H:%M:%S IST")
-    return is_open, time_str
-
-
-market_open, ist_time_now = get_market_status()
-
-
-# -----------------------------------------------------------------------------
-# Global Sidebar
+# Global sidebar
 # -----------------------------------------------------------------------------
 with st.sidebar:
-    st.markdown("### 🏛️ BDA Stock Platform")
-    st.caption("Big Data Analytics & AI Architecture")
-
-    st.markdown("---")
-    st.markdown("#### 🎯 Active Ticker")
-    ticker_choice = st.selectbox(
-        "Select Asset:",
-        ["RELIANCE.NS — Reliance Industries Ltd"],
-        index=0
-    )
-
-    st.markdown("#### ⏰ NSE Market Hours")
-    if market_open:
-        st.markdown(f'<span class="badge-online">🟢 LIVE MARKET OPEN</span> `{ist_time_now}`', unsafe_allow_html=True)
-    else:
-        st.markdown(f'<span class="badge-online" style="color:#f59e0b; border-color:#f59e0b;">🟡 MARKET CLOSED</span> `{ist_time_now}`', unsafe_allow_html=True)
-
-    st.markdown("---")
-    st.markdown("#### ⚡ Cluster Telemetry")
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown('<span class="badge-online">HDFS: ONLINE</span>', unsafe_allow_html=True)
-        st.markdown('<span class="badge-online">HIVE: READY</span>', unsafe_allow_html=True)
-    with col2:
-        st.markdown('<span class="badge-online">HBASE: CONNECTED</span>', unsafe_allow_html=True)
-        st.markdown('<span class="badge-online">KAFKA: STREAMING</span>', unsafe_allow_html=True)
-
-    st.markdown("---")
-    st.markdown("#### 🚀 Pipeline Execution")
-    if st.button("▶️ Run Batch Prediction Pipeline", use_container_width=True):
-        with st.spinner("Executing Pig ETL, Spark Indicators, Scoring & ML Models..."):
-            try:
-                # Trigger pipeline stages
-                subprocess.run([sys.executable, os.path.join(PROJECT_ROOT, "module_2_processing", "pig", "run_pig_etl.py")], check=True)
-                subprocess.run([sys.executable, os.path.join(PROJECT_ROOT, "module_2_processing", "spark", "spark_feature_engineering.py")], check=True)
-                subprocess.run([sys.executable, os.path.join(PROJECT_ROOT, "module_2_processing", "spark", "spark_score_engine.py")], check=True)
-                subprocess.run([sys.executable, os.path.join(PROJECT_ROOT, "module_2_processing", "prediction", "predict_next_day.py")], check=True)
-                st.success("✅ Complete pipeline executed successfully!")
-                st.rerun()
-            except Exception as e:
-                st.error(f"Execution notice: {e}")
-
-    st.caption("Hadoop 3.3.6 · Spark 3.4.1 · Hive 3 · HBase · Kafka")
-
+    st.selectbox("Instrument", [f"{T.INSTRUMENT}.NS — Reliance Industries Ltd"], index=0,
+                 help="Single-instrument build. The pipeline is specialised for RELIANCE.")
+    ms = C.market_status()
+    src = B["source"]
+    model_name = B["metrics"].get("model_name", "—") if B["metrics"] else "—"
+    C.sidebar_kv([
+        ("Market", f'<span class="{"ss-up" if ms["open"] else "ss-muted"}">● {ms["label"]}</span> <span class="ss-num">{ms["time"]}</span>'),
+        ("Data as of", f'<span class="ss-num">{C.fmt_date(as_of) if as_of else "—"}</span>'),
+        ("Price source", f'<span class="{"ss-warn" if src["source"] != "Kaggle" else "ss-up"}">{C.esc(src["source"])}</span>'),
+        ("Model", C.esc(str(model_name).split("(")[0].strip())),
+        ("Signal", C.signal_badge_html(signal)),
+    ])
+    st.caption(src["reason"])
+    if st.button("Run pipeline", type="primary", width="stretch", icon=":material/play_arrow:",
+                 help="Pig ETL → Spark features → score engine → next-day prediction"):
+        run_pipeline()
+    C.glossary()
+    st.caption(f"{T.APP_NAME} · {T.VERSION} · {T.STACK}")
 
 # -----------------------------------------------------------------------------
-# Main Landing Overview
+# App bar + ticker tape (every page)
 # -----------------------------------------------------------------------------
-st.title("📈 Reliance Industries (RELIANCE.NS) BDA Prediction Cockpit")
-st.markdown("A distributed Big Data Analytics platform fusing **Kaggle price history**, **NLP news sentiment**, **sector momentum**, and **streaming ticks** to forecast next-day returns.")
+C.app_bar(signal, as_of)
 
-serving_state = load_latest_serving_state()
-cf_tick = serving_state.get("cf_tick", {})
-cf_score = serving_state.get("cf_score", {})
-cf_pred = serving_state.get("cf_pred", {})
+tape: list[str] = []
+feat = B["feat"]
+if len(feat) >= 2:
+    last, prev = feat.iloc[-1], feat.iloc[-2]
+    chg = float(last["close_price"]) - float(prev["close_price"])
+    chg_pct = chg / float(prev["close_price"]) * 100.0
+    tape.append(f'Last close <b class="ss-num">{C.inr(last["close_price"])}</b> '
+                f'<span class="ss-num {C.tone_for(chg)}">{C.glyph_for(chg)} {C.pct(chg_pct)}</span>')
+    rsi = float(last["rsi_14"])
+    rsi_state = "oversold" if rsi < 30 else ("overbought" if rsi > 70 else "neutral")
+    tape.append(f'RSI 14 <b class="ss-num">{rsi:.1f}</b> <span class="{"ss-warn" if rsi_state != "neutral" else "ss-muted"}">{rsi_state}</span>')
+if not B["scores"].empty:
+    s = float(B["scores"].iloc[-1]["composite_score"])
+    tape.append(f'Composite <b class="ss-num">{s:.1f}</b> <span class="ss-chip neu">{C.signal_band(s).lower()} band</span>')
+if forecast:
+    tape.append(f'Signal {C.signal_badge_html(signal)}')
+    tape.append(f'Forecast <b class="ss-num ss-accent">{C.inr(forecast["predicted_close"])}</b> '
+                f'<span class="ss-num">{C.pct(forecast["predicted_return_pct"])}</span> for {C.fmt_date(forecast.get("target_date"))}')
+if not B["news"].empty:
+    n0 = B["news"].iloc[0]
+    tape.append(f'{C.esc(n0.get("source", "News"))} · {C.esc(n0.get("title", ""))} {C.sentiment_chip_html(n0.get("sentiment_label"), n0.get("polarity_score"))}')
+C.ticker_tape(tape)
 
-df_preds = load_predictions()
-latest_pred = df_preds.iloc[-1].to_dict() if not df_preds.empty else {}
-
-# Key Metrics Row
-col_m1, col_m2, col_m3, col_m4, col_m5 = st.columns(5)
-with col_m1:
-    ltp_val = cf_tick.get("ltp", latest_pred.get("current_close", "2750.00"))
-    st.metric("Current LTP (₹)", f"₹{float(ltp_val):,.2f}", "+0.45%")
-with col_m2:
-    pred_val = cf_pred.get("predicted_close", latest_pred.get("predicted_close", "2768.50"))
-    ret_val = latest_pred.get("predicted_return_pct", 0.67)
-    st.metric("Next-Day Forecast", f"₹{float(pred_val):,.2f}", f"{ret_val:+.2f}%")
-with col_m3:
-    comp_score = cf_score.get("composite", latest_pred.get("composite_score", "72.4"))
-    st.metric("Composite Score (S)", f"{float(comp_score):.1f} / 100", "Bullish Bias")
-with col_m4:
-    sig = cf_pred.get("signal", latest_pred.get("signal", "BUY"))
-    st.metric("Signal Recommendation", sig, "Algorithm Target")
-with col_m5:
-    conf = cf_pred.get("confidence", latest_pred.get("confidence_pct", "68.5"))
-    st.metric("Model Confidence", f"{conf}%", "Time-Series Split")
-
-st.markdown("---")
-
-# Navigation Guidance Cards
-st.subheader("🧭 Platform Architecture Navigation")
-nav_col1, nav_col2, nav_col3, nav_col4 = st.columns(4)
-
-with nav_col1:
-    st.markdown("""
-    <div class="glass-card">
-        <h3 style="color:#06b6d4; margin-top:0;">📂 Page 1: Ingestion</h3>
-        <p style="color:#9ca3af; font-size:0.88rem;">
-            Explore the 6-layer BDA architecture diagram, inspect raw Kaggle datasets (2010–2025), and query Hive metastore tables.
-        </p>
-        <span class="badge-online">Module 1: Storage Layer</span>
-    </div>
-    """, unsafe_allow_html=True)
-
-with nav_col2:
-    st.markdown("""
-    <div class="glass-card">
-        <h3 style="color:#8b5cf6; margin-top:0;">📊 Page 2: Analytics</h3>
-        <p style="color:#9ca3af; font-size:0.88rem;">
-            Interactive Plotly candlestick charts with EMA 20/50, VWAP, Bollinger Bands, Volume, RSI, MACD, and multi-factor radial gauge scores.
-        </p>
-        <span class="badge-online">Module 2: Processing Layer</span>
-    </div>
-    """, unsafe_allow_html=True)
-
-with nav_col3:
-    st.markdown("""
-    <div class="glass-card">
-        <h3 style="color:#10b981; margin-top:0;">🎯 Page 3: Prediction</h3>
-        <p style="color:#9ca3af; font-size:0.88rem;">
-            Next-day price forecast card with confidence intervals, actionable BUY / SELL / HOLD badges, and Spark MLlib feature drivers.
-        </p>
-        <span class="badge-online">Module 3: Prediction Serving</span>
-    </div>
-    """, unsafe_allow_html=True)
-
-with nav_col4:
-    st.markdown("""
-    <div class="glass-card" style="border-color:rgba(16, 185, 129, 0.4); box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);">
-        <h3 style="color:#38bdf8; margin-top:0;">⏱️ Page 4: Simulator</h3>
-        <p style="color:#9ca3af; font-size:0.88rem;">
-            1D backtest replay with Play/Pause/Speed controls (1s, 3s, 5s, 10s), realistic 68.2% accuracy, and positive net green PnL.
-        </p>
-        <span class="badge-signal-buy" style="font-size:0.72rem; padding:3px 10px;">Live Backtester</span>
-    </div>
-    """, unsafe_allow_html=True)
-
-# Pipeline Flow Overview
-st.markdown("### ⚙️ End-to-End Pipeline Health")
-st.markdown("""
-```
-[1. Kaggle 2010-2025] ──► [HDFS Raw Zone] ──► [Apache Pig ETL] ──► [Spark SQL Windows] ──► [Spark MLlib RF] ──► [HBase / Hive] ──► [Streamlit]
-[2. Curated Web News] ──► [HDFS News Lake] ──► (Deduplication)  ──► (EMA, VWAP, RSI)   ──► (Next-Day Return) ──► (RowKey: RELIANCE#<ts>)
-[3. Streaming Ticks]  ──► [Kafka Broker]   ──► [Spark Streaming]──► [4-Score Engine]    ──► (Buy/Hold Signals)
-```
-""")
+# -----------------------------------------------------------------------------
+# Page body, footer, animation runtime
+# -----------------------------------------------------------------------------
+pg.run()
+C.footer()
+C.countup_runtime()

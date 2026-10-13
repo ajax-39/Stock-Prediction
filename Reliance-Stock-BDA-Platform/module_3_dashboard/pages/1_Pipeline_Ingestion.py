@@ -1,11 +1,13 @@
 """
-1_Pipeline_Ingestion.py — Data Ingestion & BDA Pipeline Architecture Inspector
-=============================================================================
-Visualizes data sources, HDFS raw storage, Hive schema, and the multi-stage BDA pipeline.
+1_Pipeline_Ingestion.py — Pipeline & Data
+=========================================
+Where every number comes from: the sources, the storage zones and the stages
+that transform them. Statuses, row counts and timestamps are read from disk.
 """
 
 import os
 import sys
+
 import pandas as pd
 import streamlit as st
 
@@ -13,175 +15,228 @@ PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-from module_3_dashboard.styles import CUSTOM_CSS
-from module_3_dashboard.data_loader import (
-    load_raw_prices,
-    load_curated_news,
-    load_market_sentiment
-)
+from module_3_dashboard import components as C  # noqa: E402
+from module_3_dashboard import data_loader as dl  # noqa: E402
 
-st.set_page_config(page_title="Pipeline & Ingestion — RELIANCE BDA", page_icon="📂", layout="wide")
-st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+B = C.load_bundle()
+prices, news, macro = B["prices"], B["news"], B["macro"]
 
-st.title("📂 Module 1: Ingestion & Distributed Storage Architecture")
-st.markdown("Inspection console for Big Data ingestion sources, HDFS Lake structure, and Hive Warehouse tables.")
+C.page_title("Pipeline & Data", "Sources → HDFS lake → Pig / MapReduce → Spark SQL & scoring → MLlib → HBase / Hive → Stock sight. "
+             "Every status below is read from the staged files, not assumed.")
 
 # -----------------------------------------------------------------------------
-# Section 1: Visual Interactive BDA Architecture Pipeline
+# Architecture flow (kept from the original page, restyled)
 # -----------------------------------------------------------------------------
-st.subheader("🏗️ Distributed Big Data Pipeline Flow")
-st.markdown("""
-<div class="glass-card">
-    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-        <div style="background:#1f2937; padding:12px 16px; border-radius:10px; border:1px solid #374151; text-align:center; flex:1; min-width:140px;">
-            <div style="font-size:0.75rem; color:#9ca3af; font-weight:600;">SOURCE FEEDS</div>
-            <div style="font-weight:700; color:#38bdf8; margin:4px 0;">Kaggle + RSS + Ticks</div>
-            <div style="font-size:0.7rem; color:#6b7280;">2010-2025 OHLCV, TextBlob</div>
-        </div>
-        <div style="color:#6b7280; font-size:1.2rem;">➔</div>
-        <div style="background:#1f2937; padding:12px 16px; border-radius:10px; border:1px solid #374151; text-align:center; flex:1; min-width:140px;">
-            <div style="font-size:0.75rem; color:#9ca3af; font-weight:600;">HDFS DATA LAKE</div>
-            <div style="font-weight:700; color:#34d399; margin:4px 0;">/bda/lake/raw/*</div>
-            <div style="font-size:0.7rem; color:#6b7280;">HDFS NameNode :9000</div>
-        </div>
-        <div style="color:#6b7280; font-size:1.2rem;">➔</div>
-        <div style="background:#1f2937; padding:12px 16px; border-radius:10px; border:1px solid #374151; text-align:center; flex:1; min-width:140px;">
-            <div style="font-size:0.75rem; color:#9ca3af; font-weight:600;">BATCH ETL & MR</div>
-            <div style="font-weight:700; color:#fbbf24; margin:4px 0;">Apache Pig & MapReduce</div>
-            <div style="font-size:0.7rem; color:#6b7280;">Deduplication & Momentum</div>
-        </div>
-        <div style="color:#6b7280; font-size:1.2rem;">➔</div>
-        <div style="background:#1f2937; padding:12px 16px; border-radius:10px; border:1px solid #374151; text-align:center; flex:1; min-width:140px;">
-            <div style="font-size:0.75rem; color:#9ca3af; font-weight:600;">ANALYTICS & ML</div>
-            <div style="font-weight:700; color:#a78bfa; margin:4px 0;">Spark SQL & MLlib</div>
-            <div style="font-size:0.7rem; color:#6b7280;">4 Scores (T,F,N,R) & GBT</div>
-        </div>
-        <div style="color:#6b7280; font-size:1.2rem;">➔</div>
-        <div style="background:#1f2937; padding:12px 16px; border-radius:10px; border:1px solid #374151; text-align:center; flex:1; min-width:140px;">
-            <div style="font-size:0.75rem; color:#9ca3af; font-weight:600;">FAST SERVING</div>
-            <div style="font-weight:700; color:#f43f5e; margin:4px 0;">HBase + Hive</div>
-            <div style="font-size:0.7rem; color:#6b7280;">RowKey: RELIANCE#rev_ts</div>
-        </div>
-    </div>
-</div>
-""", unsafe_allow_html=True)
+C.flow_diagram([
+    ("Source feeds", "Kaggle · news · ticks", "2010–2025 OHLCV, TextBlob NLP, broker stub"),
+    ("HDFS data lake", "/bda/lake/raw/*", "NameNode :9000 · 3 zones"),
+    ("Batch ETL & MR", "Apache Pig · MapReduce", "Dedup, joins, 30/60/90d momentum"),
+    ("Analytics & ML", "Spark SQL · MLlib", "EMA, VWAP, RSI, MACD, BB · T/F/N/R → S"),
+    ("Fast serving", "HBase · Hive", "RowKey RELIANCE#rev_ts · ORC tables"),
+])
 
 # -----------------------------------------------------------------------------
-# Section 2: Data Source 1 — Kaggle Historical OHLCV
+# Stage status table
 # -----------------------------------------------------------------------------
-st.markdown("---")
-st.subheader("📊 Data Source 1: Kaggle Historical OHLCV (2010–2025)")
+C.section("Stage status", "status, rows, date coverage and last-modified time from the files on disk")
+stages = dl.pipeline_stages()
+rows = []
+for s in stages:
+    if not s["exists"]:
+        status = "● missing"
+    elif s.get("error"):
+        status = "● unreadable"
+    else:
+        age_h = (pd.Timestamp.now() - pd.Timestamp(s["mtime"])).total_seconds() / 3600
+        status = "● fresh" if age_h < 24 else "● stale (>24 h)"
+    rows.append({
+        "Stage": s["stage"], "Engine": s["engine"], "File": s["name"], "Status": status,
+        "Rows": s["rows"], "From": s["date_min"], "To": s["date_max"],
+        "Last modified": s["mtime"].strftime("%Y-%m-%d %H:%M") if s["mtime"] else None,
+        "Size (KB)": round(s["size_bytes"] / 1024, 1) if s["size_bytes"] else None,
+    })
+df_stages = pd.DataFrame(rows)
+C.table(df_stages, "pipeline_stages", column_config={
+    "Rows": st.column_config.NumberColumn("Rows", format="localized"),
+    "Size (KB)": st.column_config.NumberColumn("Size (KB)", format="%.1f"),
+    "Status": st.column_config.TextColumn("Status", help="fresh = modified in the last 24 h"),
+})
 
-df_prices = load_raw_prices()
-if not df_prices.empty:
-    m_col1, m_col2, m_col3, m_col4 = st.columns(4)
-    with m_col1:
-        st.metric("Total Trading Sessions", f"{len(df_prices):,} Days")
-    with m_col2:
-        st.metric("Timeline Range", f"{df_prices['Date'].min()} to {df_prices['Date'].max()}")
-    with m_col3:
-        st.metric("Highest Historical Close", f"₹{df_prices['Close'].max():,.2f}")
-    with m_col4:
-        st.metric("Average Daily Volume", f"{int(df_prices['Volume'].mean()):,} Shares")
+# -----------------------------------------------------------------------------
+# Data quality
+# -----------------------------------------------------------------------------
+C.section("Data quality", "missing values, date gaps and the news → price join")
+q = dl.data_quality_report()
+files_ok = [f for f in q["files"] if f.get("exists") and "rows" in f]
+missing_total = int(sum(f["missing"] for f in files_ok))
+dup_total = int(sum((f.get("duplicate_dates") or 0) for f in files_ok))
+nm, gaps = q.get("news_match"), q.get("date_gaps")
+c1, c2, c3, c4 = st.columns(4)
+with c1:
+    C.metric("Missing values", float(missing_total), fmt="num", dec=0, key="dq_missing",
+             delta_text=f"across {len(files_ok)} files", sub="cells with NaN in any staged CSV")
+with c2:
+    C.metric("Duplicate dates", float(dup_total), fmt="num", dec=0, key="dq_dup", sub="repeated trade_date keys")
+with c3:
+    if gaps:
+        C.metric("Date gaps > 5 days", float(gaps["count"]), fmt="num", dec=0, key="dq_gaps",
+                 sub=f"largest gap {gaps['max_days']} calendar days" + (" · weekends only" if gaps["weekend_only"] else ""))
+    else:
+        C.metric("Date gaps", "—", sub="no price history")
+with c4:
+    if nm and nm["total"]:
+        C.metric("News → price join", f"{nm['matched']} / {nm['total']}", delta=None,
+                 delta_text=f"{nm['rate_pct']}% matched", sub="headline dates that exist as trading days")
+    else:
+        C.metric("News → price join", "—", sub="no news rows")
+if nm and nm["total"] and nm["matched"] == 0:
+    C.note(f"<b>0 of {nm['total']} headlines join to a trading day.</b> News is dated {C.fmt_date(nm['news_min'])} – "
+           f"{C.fmt_date(nm['news_max'])}; the price history ends {C.fmt_date(nm['price_max'])}. The Pig join therefore leaves "
+           f"<code>news_polarity = 0</code> on every row ({nm['feature_days_with_news'] or 0} feature days carry news) and the news score N "
+           f"is flat at 50. Fix: refresh the Kaggle download or back-date the curated feed.", kind="warn")
+with st.expander("Per-file detail"):
+    dq_rows = [{"File": f["name"], "Exists": f.get("exists", False), "Rows": f.get("rows"), "Columns": f.get("cols"),
+                "Missing cells": f.get("missing"), "Missing %": f.get("missing_pct"), "Duplicate dates": f.get("duplicate_dates"),
+                "Error": f.get("error")} for f in q["files"]]
+    C.table(pd.DataFrame(dq_rows), "data_quality", column_config={
+        "Rows": st.column_config.NumberColumn(format="localized"), "Missing %": st.column_config.NumberColumn(format="%.3f%%")})
+    if gaps and gaps["examples"]:
+        st.caption("Largest gaps: " + " · ".join(f"{a} → {b} ({d} d)" for a, b, d in gaps["examples"]))
 
-    with st.expander("🔍 Explore Raw Kaggle Historical Data Table", expanded=False):
-        num_rows = st.slider("Rows to display:", 5, 50, 10)
-        st.dataframe(df_prices.tail(num_rows), use_container_width=True)
+# -----------------------------------------------------------------------------
+# Source 1 · Kaggle historical OHLCV
+# -----------------------------------------------------------------------------
+src = B["source"]
+C.section("Source 1 · Kaggle historical OHLCV", f'{C.freshness_tag(dl.RAW_PRICES)} · detected as <b>{C.esc(src["source"])}</b>')
+if prices.empty:
+    C.empty_state("Raw prices dataset not found", "Run module_1_storage/ingestion/kaggle_ingest.py first.", dl.RAW_PRICES)
 else:
-    st.warning("Raw prices dataset not found. Run module_1_storage/ingestion/kaggle_ingest.py first.")
+    if src["source"] != "Kaggle":
+        C.note(f"<b>{C.esc(src['source'])}</b>: {C.esc(src['reason'])}. Prices are a seeded random walk, not Reliance's real history, "
+               f"so levels like {C.inr(prices['Close'].iloc[-1])} are not comparable to the NSE quote.", kind="warn")
+    m1, m2, m3, m4 = st.columns(4)
+    with m1:
+        C.metric("Trading sessions", float(len(prices)), fmt="num", dec=0, key="p_sessions")
+    with m2:
+        C.metric("Timeline", f"{C.fmt_date(prices['Date'].min())} – {C.fmt_date(prices['Date'].max())}",
+                 sub=f"{(pd.to_datetime(prices['Date'].max()) - pd.to_datetime(prices['Date'].min())).days // 365} years")
+    with m3:
+        hi = prices.loc[prices["Close"].idxmax()]
+        C.metric("Highest close", float(hi["Close"]), key="p_hi", sub=f"on {C.fmt_date(hi['Date'])}")
+    with m4:
+        C.metric("Average daily volume", C.compact_in(prices["Volume"].mean()), sub=f"median {C.compact_in(prices['Volume'].median())}")
+    with st.expander("Explore the raw price table"):
+        f1, f2 = st.columns([2, 1])
+        with f1:
+            filtered = C.date_range_filter(prices, "Date", key="raw_prices_range", default_days=None, label="Date range")
+        with f2:
+            n_rows = st.slider("Rows to display", 5, 50, 10, key="raw_rows")
+        st.caption(f"{len(filtered):,} rows in range · showing the latest {min(n_rows, len(filtered))}")
+        C.table(filtered.tail(n_rows), "raw_prices_preview", column_config={
+            c: st.column_config.NumberColumn(c, format="₹%.2f") for c in ("Open", "High", "Low", "Close")} | {
+            "Volume": st.column_config.NumberColumn("Volume", format="localized")}, download=False)
+        C.csv_download(filtered, "raw_prices_filtered", key="dl_raw_prices_filtered")
 
 # -----------------------------------------------------------------------------
-# Section 3: Data Source 2 — Curated News & NLP Sentiment Feed
+# Source 2 · News & sentiment feed
 # -----------------------------------------------------------------------------
-st.markdown("---")
-st.subheader("📰 Data Source 2: Curated News & TextBlob Sentiment")
-
-df_news = load_curated_news()
-if not df_news.empty:
-    news_cols = st.columns(len(df_news))
-    for idx, row in df_news.iterrows():
-        with news_cols[idx % len(news_cols)]:
-            pol = float(row.get("polarity_score", 0.0))
-            chip_cls = "sentiment-chip-pos" if pol >= 0 else "sentiment-chip-neg"
-            sign_str = f"+{pol:.2f}" if pol >= 0 else f"{pol:.2f}"
-
-            st.markdown(f"""
-            <div class="glass-card" style="height:260px; display:flex; flex-direction:column; justify-content:space-between;">
-                <div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                        <span style="font-size:0.75rem; color:#9ca3af; font-weight:600;">{row.get('source', 'News')}</span>
-                        <span class="{chip_cls}">{row.get('sentiment_label', 'NEUTRAL')} ({sign_str})</span>
-                    </div>
-                    <div style="font-weight:600; font-size:0.88rem; color:#f3f4f6; line-height:1.3; margin-bottom:6px;">
-                        {row.get('title', '')}
-                    </div>
-                    <div style="font-size:0.75rem; color:#9ca3af; line-height:1.4;">
-                        {row.get('summary', '')[:120]}...
-                    </div>
-                </div>
-                <div style="font-size:0.7rem; color:#6b7280; margin-top:6px;">
-                    📅 {row.get('trade_date', '')}
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+C.section("Source 2 · News & TextBlob sentiment", C.freshness_tag(dl.RAW_NEWS))
+if news.empty:
+    C.empty_state("Curated news feed empty", "Run module_1_storage/ingestion/news_curated_feed.py.", dl.RAW_NEWS)
 else:
-    st.info("Curated news feed empty. Run module_1_storage/ingestion/news_curated_feed.py.")
+    if nm and nm["total"] and nm["matched"] == 0:
+        C.note(f"These headlines ({C.fmt_date(nm['news_min'])} – {C.fmt_date(nm['news_max'])}) fall outside the price history "
+               f"(ends {C.fmt_date(nm['price_max'])}), so none of them reach the features or the news score.", kind="warn")
+    C.news_cards(news.sort_values("trade_date", ascending=False) if "trade_date" in news.columns else news)
+    with st.expander("News table"):
+        C.table(news, "news_feed", column_config={"link": st.column_config.LinkColumn("link"),
+                                                  "polarity_score": st.column_config.NumberColumn(format="%+.2f"),
+                                                  "subjectivity_score": st.column_config.NumberColumn(format="%.2f")})
 
 # -----------------------------------------------------------------------------
-# Section 4: Data Source 3 — Sector & Macro Sentiment
+# Source 3 · Sector & macro environment
 # -----------------------------------------------------------------------------
-st.markdown("---")
-st.subheader("🌐 Data Source 3: Sector & Macro Environment (Oil & Gas & NIFTY 50)")
-
-df_sent = load_market_sentiment()
-if not df_sent.empty:
-    latest_macro = df_sent.iloc[-1]
-    sec_col1, sec_col2, sec_col3, sec_col4 = st.columns(4)
-    with sec_col1:
-        st.metric("Sector Benchmark", latest_macro.get("sector", "Energy"), "Oil & Gas / O2C")
-    with sec_col2:
-        st.metric("Sector P/E Ratio", f"{latest_macro.get('sector_pe_ratio', 24.8):.1f}x", "Historical Mean")
-    with sec_col3:
-        st.metric("NIFTY 50 Sentiment", f"{latest_macro.get('nifty50_sentiment_score', 68.0):.1f} / 100", latest_macro.get('nifty50_sentiment_label', 'BULLISH'))
-    with sec_col4:
-        st.metric("Brent Crude Price", f"${latest_macro.get('brent_crude_usd', 78.5):.2f}/bbl", "Stable Input Cost")
+C.section("Source 3 · Sector & macro environment", C.freshness_tag(dl.RAW_SENTIMENT))
+if macro.empty:
+    C.empty_state("Market sentiment data not available", "Run module_1_storage/ingestion/sector_nifty_sentiment.py.", dl.RAW_SENTIMENT)
 else:
-    st.info("Market sentiment data not available.")
+    lm = macro.iloc[-1]
+    s1, s2, s3, s4, s5, s6 = st.columns(6)
+    with s1:
+        C.metric("Sector", str(lm.get("sector", "—")), sub=f"as of {C.fmt_date(lm.get('trade_date'))}")
+    with s2:
+        C.metric("Sector P/E", float(lm["sector_pe_ratio"]), fmt="num", dec=1, key="m_pe", delta_text="ratio",
+                 spark=macro["sector_pe_ratio"].tail(30).tolist())
+    with s3:
+        C.metric("NIFTY 50 sentiment", float(lm["nifty50_sentiment_score"]), fmt="num", dec=1, key="m_nifty",
+                 delta_text=str(lm.get("nifty50_sentiment_label", "")).lower(), spark=macro["nifty50_sentiment_score"].tail(30).tolist())
+    with s4:
+        C.metric("Brent crude", float(lm["brent_crude_usd"]), fmt="num", dec=2, key="m_brent", delta_text="USD / bbl",
+                 spark=macro["brent_crude_usd"].tail(30).tolist())
+    with s5:
+        C.metric("India VIX", float(lm["india_vix"]), fmt="num", dec=1, key="m_vix", spark=macro["india_vix"].tail(30).tolist())
+    with s6:
+        C.metric("FII + DII net flow", float(lm["fii_dii_net_flow_cr"]), fmt="num", dec=0, key="m_flow", delta_text="₹ crore",
+                 spark=macro["fii_dii_net_flow_cr"].tail(30).tolist())
+    with st.expander("Macro table"):
+        C.table(macro, "market_sentiment")
 
 # -----------------------------------------------------------------------------
-# Section 5: HDFS Data Lake & Hive Metastore Inspector
+# HDFS lake & Hive metastore inspectors
 # -----------------------------------------------------------------------------
-st.markdown("---")
-st.subheader("🗄️ HDFS Data Lake & Hive Warehouse Metastore Inspector")
+C.section("HDFS data lake & Hive warehouse", "zone layout, table DDL and the locally staged mirror of each path")
+tab_hdfs, tab_hive, tab_raw = st.tabs(["HDFS 3-zone hierarchy", "Hive warehouse schemas", "Staged previews"])
 
-lake_tab1, lake_tab2 = st.tabs(["HDFS 3-Zone Hierarchy", "Hive Warehouse Schemas"])
+with tab_hdfs:
+    zones = [
+        ("Raw prices", "/bda/lake/raw/prices/reliance_prices.csv", "CSV", dl.RAW_PRICES, "Immutable Kaggle 2010–2025 history"),
+        ("Raw news", "/bda/lake/raw/news/reliance_news.csv", "CSV", dl.RAW_NEWS, "Headlines with TextBlob sentiment"),
+        ("Raw macro", "/bda/lake/raw/sentiment/market_sentiment.csv", "CSV", dl.RAW_SENTIMENT, "NIFTY 50 and energy-sector parameters"),
+        ("Clean zone", "/bda/lake/clean/reliance_daily_joined/", "CSV / Parquet", dl.CLEAN_JOINED, "Pig normalisation and price–news join"),
+        ("Curated zone", "/bda/lake/curated/reliance_features/", "ORC", dl.CURATED_FEATURES, "Windowed indicators (EMA, VWAP, RSI, MACD, BB)"),
+        ("Model store", "/bda/models/reliance_mllib_best/", "Spark ML", dl.MODEL_METRICS, "Model metrics (weights are not staged locally)"),
+    ]
+    zrows = []
+    for zone, path, fmt, local, purpose in zones:
+        fi = dl.file_info(local)
+        zrows.append({"Zone": zone, "HDFS path": path, "Format": fmt,
+                      "Local mirror": "● staged" if fi["exists"] else "● not staged",
+                      "Rows": fi["rows"], "Updated": fi["mtime"].strftime("%Y-%m-%d %H:%M") if fi["mtime"] else None,
+                      "Purpose": purpose})
+    C.table(pd.DataFrame(zrows), "hdfs_zones", column_config={"Rows": st.column_config.NumberColumn(format="localized")})
+    st.caption("Status reflects the local staging copy under data/. HDFS itself is only reachable from the Docker cluster.")
 
-with lake_tab1:
-    st.markdown("""
-    | Zone | HDFS Target Path | Format | Status | Purpose |
-    | :--- | :--- | :---: | :---: | :--- |
-    | **Raw Prices** | `/bda/lake/raw/prices/reliance_prices.csv` | CSV | ✅ MOUNTED | Immutable Kaggle 2010–2025 raw historical prices |
-    | **Raw News** | `/bda/lake/raw/news/reliance_news.csv` | CSV | ✅ MOUNTED | Financial headlines with TextBlob sentiment tags |
-    | **Raw Macro** | `/bda/lake/raw/sentiment/market_sentiment.csv` | CSV | ✅ MOUNTED | NIFTY 50 and Energy sector index parameters |
-    | **Clean Zone** | `/bda/lake/clean/reliance_daily_joined/` | CSV/Parquet | ✅ SYNCHRONIZED | Output of Apache Pig normalization and joining |
-    | **Curated Zone**| `/bda/lake/curated/reliance_features/` | ORC | ✅ READY | Windowed indicators (EMA, VWAP, RSI, MACD, BB) |
-    | **Model Store**| `/bda/models/reliance_mllib_best/` | Spark ML | ✅ TRAINED | Saved Spark MLlib Random Forest model weights |
-    """)
+with tab_hive:
+    st.code("""-- Active Hive tables in 'reliance_bda_db'
+CREATE EXTERNAL TABLE raw_stock_prices (trade_date STRING, open_price DOUBLE, high_price DOUBLE, low_price DOUBLE,
+                                        close_price DOUBLE, volume BIGINT, ticker STRING)
+LOCATION '/bda/lake/raw/prices';
 
-with lake_tab2:
-    st.markdown("""
-    ```sql
-    -- Active Hive Tables in 'reliance_bda_db'
-    CREATE EXTERNAL TABLE raw_stock_prices (trade_date STRING, open_price DOUBLE, high_price DOUBLE, low_price DOUBLE, close_price DOUBLE, volume BIGINT, ticker STRING)
-    LOCATION '/bda/lake/raw/prices';
+CREATE TABLE reliance_features (trade_date STRING, close_price DOUBLE, ema_20 DOUBLE, ema_50 DOUBLE, vwap DOUBLE,
+                                rsi_14 DOUBLE, macd DOUBLE, bb_pos DOUBLE)
+PARTITIONED BY (year STRING, month STRING) STORED AS ORC;
 
-    CREATE TABLE reliance_features (trade_date STRING, close_price DOUBLE, ema_20 DOUBLE, ema_50 DOUBLE, vwap DOUBLE, rsi_14 DOUBLE, macd DOUBLE, bb_pos DOUBLE)
-    PARTITIONED BY (year STRING, month STRING) STORED AS ORC;
+CREATE TABLE reliance_daily_scores (trade_date STRING, technical_score DOUBLE, fundamental_score DOUBLE,
+                                    news_score DOUBLE, realtime_score DOUBLE, composite_score DOUBLE)
+STORED AS ORC;
 
-    CREATE TABLE reliance_daily_scores (trade_date STRING, technical_score DOUBLE, fundamental_score DOUBLE, news_score DOUBLE, realtime_score DOUBLE, composite_score DOUBLE)
-    STORED AS ORC;
+CREATE TABLE reliance_predictions (trade_date STRING, predicted_close DOUBLE, direction STRING, signal STRING,
+                                   confidence DOUBLE)
+STORED AS ORC;""", language="sql")
 
-    CREATE TABLE reliance_predictions (trade_date STRING, predicted_close DOUBLE, direction STRING, signal STRING, confidence DOUBLE)
-    STORED AS ORC;
-    ```
-    """)
+with tab_raw:
+    clean = dl.load_clean_joined()
+    feat = B["feat"]
+    p1, p2 = st.columns(2)
+    with p1:
+        st.markdown(f"**Clean join** · {C.freshness_tag(dl.CLEAN_JOINED)}", unsafe_allow_html=True)
+        if clean.empty:
+            C.empty_state("No clean join", "run_pig_etl.py has not run.", dl.CLEAN_JOINED)
+        else:
+            C.table(clean.tail(10), "clean_joined_tail", download=True)
+    with p2:
+        st.markdown(f"**Features** · {C.freshness_tag(dl.CURATED_FEATURES)}", unsafe_allow_html=True)
+        if feat.empty:
+            C.empty_state("No features", "spark_feature_engineering.py has not run.", dl.CURATED_FEATURES)
+        else:
+            C.table(feat.tail(10), "features_tail", download=True)
