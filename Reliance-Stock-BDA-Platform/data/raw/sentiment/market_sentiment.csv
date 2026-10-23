@@ -1,11 +1,4 @@
 trade_date,sector,sector_pe_ratio,sector_momentum_score,nifty50_sentiment_label,nifty50_sentiment_score,india_vix,brent_crude_usd,fii_dii_net_flow_cr
-2026-09-03,Energy / Oil & Gas,24.8,62.5,BULLISH,68.0,13.4,78.5,1420.5
-2026-09-04,Energy / Oil & Gas,24.8,62.5,BULLISH,68.0,13.4,78.5,1420.5
-2026-09-07,Energy / Oil & Gas,24.8,62.5,BULLISH,68.0,13.4,78.5,1420.5
-2026-09-08,Energy / Oil & Gas,24.8,62.5,BULLISH,68.0,13.4,78.5,1420.5
-2026-09-09,Energy / Oil & Gas,24.8,62.5,BULLISH,68.0,13.4,78.5,1420.5
-2026-09-10,Energy / Oil & Gas,24.8,62.5,BULLISH,68.0,13.4,78.5,1420.5
-2026-09-11,Energy / Oil & Gas,24.8,62.5,BULLISH,68.0,13.4,78.5,1420.5
 2026-09-14,Energy / Oil & Gas,24.8,62.5,BULLISH,68.0,13.4,78.5,1420.5
 2026-09-15,Energy / Oil & Gas,24.8,62.5,BULLISH,68.0,13.4,78.5,1420.5
 2026-09-16,Energy / Oil & Gas,24.8,62.5,BULLISH,68.0,13.4,78.5,1420.5
@@ -29,3 +22,10 @@ trade_date,sector,sector_pe_ratio,sector_momentum_score,nifty50_sentiment_label,
 2026-10-12,Energy / Oil & Gas,24.8,62.5,BULLISH,68.0,13.4,78.5,1420.5
 2026-10-13,Energy / Oil & Gas,24.8,62.5,BULLISH,68.0,13.4,78.5,1420.5
 2026-10-14,Energy / Oil & Gas,24.8,62.5,BULLISH,68.0,13.4,78.5,1420.5
+2026-10-15,Energy / Oil & Gas,24.8,62.5,BULLISH,68.0,13.4,78.5,1420.5
+2026-10-16,Energy / Oil & Gas,24.8,62.5,BULLISH,68.0,13.4,78.5,1420.5
+2026-10-19,Energy / Oil & Gas,24.8,62.5,BULLISH,68.0,13.4,78.5,1420.5
+2026-10-20,Energy / Oil & Gas,24.8,62.5,BULLISH,68.0,13.4,78.5,1420.5
+2026-10-21,Energy / Oil & Gas,24.8,62.5,BULLISH,68.0,13.4,78.5,1420.5
+2026-10-22,Energy / Oil & Gas,24.8,62.5,BULLISH,68.0,13.4,78.5,1420.5
+2026-10-23,Energy / Oil & Gas,24.8,62.5,BULLISH,68.0,13.4,78.5,1420.5

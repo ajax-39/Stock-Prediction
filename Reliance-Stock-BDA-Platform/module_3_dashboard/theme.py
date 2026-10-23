@@ -16,8 +16,8 @@ import plotly.io as pio
 # ---------------------------------------------------------------------------
 # Brand
 # ---------------------------------------------------------------------------
-APP_NAME = "Stock sight"
-TAGLINE = "Market foresight for Reliance Industries"
+APP_NAME = "StockPulse"
+TAGLINE = "Big Data Analytics & Multi-Modal Stock Prediction Platform"
 INSTRUMENT = "RELIANCE"
 EXCHANGE = "NSE"
 VERSION = "v1"
@@ -98,19 +98,17 @@ def wordmark_svg() -> str:
         '<svg width="190" height="36" viewBox="0 0 190 36" fill="none" xmlns="http://www.w3.org/2000/svg">'
         f'<g transform="translate(2,2)">{logo_mark_svg(32)[logo_mark_svg(32).find(">") + 1:-6]}</g>'
         f'<text x="44" y="25" font-family="{FONT_DISPLAY}, Inter, sans-serif" font-size="19" '
-        f'font-weight="600" letter-spacing="-0.4" fill="{TEXT}">Stock sight</text></svg>'
+        f'font-weight="600" letter-spacing="-0.4" fill="{TEXT}">StockPulse</text></svg>'
     )
 
 
 def ensure_assets() -> None:
-    """Writes the SVG favicon and sidebar wordmark to assets/ if they are missing."""
+    """Writes the SVG favicon and sidebar wordmark to assets/."""
     os.makedirs(ASSETS_DIR, exist_ok=True)
-    if not os.path.exists(MARK_SVG_PATH):
-        with open(MARK_SVG_PATH, "w", encoding="utf-8") as f:
-            f.write(logo_mark_svg(32))
-    if not os.path.exists(WORDMARK_SVG_PATH):
-        with open(WORDMARK_SVG_PATH, "w", encoding="utf-8") as f:
-            f.write(wordmark_svg())
+    with open(MARK_SVG_PATH, "w", encoding="utf-8") as f:
+        f.write(logo_mark_svg(32))
+    with open(WORDMARK_SVG_PATH, "w", encoding="utf-8") as f:
+        f.write(wordmark_svg())
 
 
 # ---------------------------------------------------------------------------

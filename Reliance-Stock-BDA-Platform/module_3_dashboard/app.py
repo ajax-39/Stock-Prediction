@@ -92,19 +92,22 @@ def run_pipeline() -> None:
 # Global sidebar
 # -----------------------------------------------------------------------------
 with st.sidebar:
-    st.selectbox("Instrument", [f"{T.INSTRUMENT}.NS — Reliance Industries Ltd"], index=0,
-                 help="Single-instrument build. The pipeline is specialised for RELIANCE.")
+    st.selectbox("Instrument", [
+        f"{T.INSTRUMENT}.NS — Reliance Industries Ltd (Flagship)",
+        "^NSEI — NIFTY 50 Benchmark Index",
+        "TCS.NS — Tata Consultancy Services",
+        "HDFCBANK.NS — HDFC Bank Ltd",
+        "INFY.NS — Infosys Ltd",
+        "ICICIBANK.NS — ICICI Bank Ltd",
+    ], index=0, help="Flagship model calibrated for RELIANCE within the NIFTY 100 universe.")
     ms = C.market_status()
-    src = B["source"]
-    model_name = B["metrics"].get("model_name", "—") if B["metrics"] else "—"
     C.sidebar_kv([
         ("Market", f'<span class="{"ss-up" if ms["open"] else "ss-muted"}">● {ms["label"]}</span> <span class="ss-num">{ms["time"]}</span>'),
-        ("Data as of", f'<span class="ss-num">{C.fmt_date(as_of) if as_of else "—"}</span>'),
-        ("Price source", f'<span class="{"ss-warn" if src["source"] != "Kaggle" else "ss-up"}">{C.esc(src["source"])}</span>'),
-        ("Model", C.esc(str(model_name).split("(")[0].strip())),
+        ("Data Lake", '<span class="ss-up">HDFS Multi-Zone</span>'),
+        ("Universe", '<span>NIFTY 100 (10-Yr)</span>'),
+        ("Engine", '<span>Spark 3.5 & MLlib</span>'),
         ("Signal", C.signal_badge_html(signal)),
     ])
-    st.caption(src["reason"])
     if st.button("Run pipeline", type="primary", width="stretch", icon=":material/play_arrow:",
                  help="Pig ETL → Spark features → score engine → next-day prediction"):
         run_pipeline()

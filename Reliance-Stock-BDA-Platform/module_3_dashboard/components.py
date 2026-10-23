@@ -510,6 +510,62 @@ def gauge_svg(value: float, width: int = 170) -> str:
             f'font-size="17" fill="{T.TEXT}">{v:.1f}</text></svg>')
 
 
+def fear_greed_gauge_svg(value: float, width: int = 220) -> str:
+    """Semicircle Fear & Greed gauge from 0 to 100."""
+    v = max(0.0, min(100.0, float(value)))
+    cx, cy, r = 110, 102, 80
+    def pt(a_deg):
+        a = math.radians(180 - a_deg)
+        return cx + r * math.cos(a), cy - r * math.sin(a)
+    def arc(a0, a1, color, opacity=0.9):
+        x0, y0 = pt(a0 * 1.8)
+        x1, y1 = pt(a1 * 1.8)
+        large = 1 if (a1 - a0) * 1.8 > 180 else 0
+        return (f'<path d="M{x0:.1f} {y0:.1f} A{r} {r} 0 {large} 1 {x1:.1f} {y1:.1f}" stroke="{color}" '
+                f'stroke-width="12" fill="none" opacity="{opacity}"/>')
+    bands = (arc(0, 25, "#EF4444", 0.85) + arc(25, 45, "#F5A524", 0.85)
+             + arc(45, 55, "#94A3B8", 0.85) + arc(55, 75, "#10B981", 0.85)
+             + arc(75, 100, "#22C55E", 0.95))
+    nx, ny = pt(v * 1.8)
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{int(width * 0.58)}" viewBox="0 0 220 120" aria-label="fear greed gauge">'
+            f'{bands}<line x1="{cx}" y1="{cy}" x2="{nx:.1f}" y2="{ny:.1f}" stroke="{T.TEXT}" stroke-width="2.8" stroke-linecap="round"/>'
+            f'<circle cx="{cx}" cy="{cy}" r="5" fill="{T.TEXT}"/>'
+            f'<text x="{cx}" y="{cy - 16}" text-anchor="middle" font-family="{T.FONT_MONO}" font-weight="700" font-size="20" fill="{T.TEXT}">{v:.0f}</text>'
+            f'<text x="25" y="114" font-family="{T.FONT_UI}" font-size="9" fill="#EF4444">Fear</text>'
+            f'<text x="{cx}" y="36" text-anchor="middle" font-family="{T.FONT_UI}" font-size="9" fill="#94A3B8">Neutral</text>'
+            f'<text x="195" y="114" text-anchor="end" font-family="{T.FONT_UI}" font-size="9" fill="#22C55E">Greed</text>'
+            f'</svg>')
+
+
+def technical_meter_fig(t_score: float, width: int = 320, height: int = 180) -> go.Figure:
+    """Plotly semicircular gauge for Technical Health Score T."""
+    fig = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=t_score,
+        domain={'x': [0, 1], 'y': [0, 1]},
+        title={'text': "Technical Score (T)", 'font': {'size': 14, 'color': T.TEXT2}},
+        gauge={
+            'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': T.BORDER2, 'tickvals': [0, 20, 40, 60, 80, 100]},
+            'bar': {'color': T.ACCENT, 'thickness': 0.28},
+            'bgcolor': "rgba(0,0,0,0)",
+            'borderwidth': 1,
+            'bordercolor': T.BORDER,
+            'steps': [
+                {'range': [0, 35], 'color': "rgba(242, 85, 90, 0.22)"},
+                {'range': [35, 60], 'color': "rgba(245, 165, 36, 0.22)"},
+                {'range': [60, 100], 'color': "rgba(34, 197, 94, 0.22)"}
+            ],
+            'threshold': {
+                'line': {'color': T.TEXT, 'width': 3},
+                'thickness': 0.8,
+                'value': t_score
+            }
+        }
+    ))
+    fig.update_layout(height=height, margin=dict(l=15, r=15, t=30, b=5), paper_bgcolor="rgba(0,0,0,0)", font=dict(family=T.FONT_UI, color=T.TEXT))
+    return fig
+
+
 def brief_list(sentences: Sequence[str]) -> None:
     html('<ul class="ss-brief">' + "".join(f'<li><i></i><span>{s}</span></li>' for s in sentences) + "</ul>")
 
