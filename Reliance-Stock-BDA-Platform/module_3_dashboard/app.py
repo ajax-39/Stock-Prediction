@@ -49,7 +49,6 @@ PAGES = [
     st.Page(os.path.join(HERE, "pages", "4_Backtest_Simulator.py"), title="Backtest", icon=":material/replay:", url_path="backtest"),
 ]
 pg = st.navigation(PAGES, position="sidebar")
-st.set_page_config(page_title=f"{T.APP_NAME} · {pg.title}")
 
 # -----------------------------------------------------------------------------
 # Shared data
