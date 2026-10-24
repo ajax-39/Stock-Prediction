@@ -1,0 +1,42 @@
+# StockPulse — Streamlit Theme Configuration (Mirrored for Streamlit Cloud)
+
+[theme]
+base = "dark"
+primaryColor = "#19D3C5"
+backgroundColor = "#0A0E14"
+secondaryBackgroundColor = "#111722"
+textColor = "#E8EDF5"
+linkColor = "#19D3C5"
+borderColor = "#232D3F"
+dataframeBorderColor = "#232D3F"
+dataframeHeaderBackgroundColor = "#182130"
+showWidgetBorder = true
+showSidebarBorder = true
+baseRadius = "0.5rem"
+buttonRadius = "0.5rem"
+font = "Inter, system-ui, sans-serif"
+headingFont = "Space Grotesk, Inter, sans-serif"
+codeFont = "JetBrains Mono, ui-monospace, monospace"
+codeBackgroundColor = "#182130"
+greenColor = "#22C55E"
+redColor = "#F2555A"
+orangeColor = "#F5A524"
+yellowColor = "#F5A524"
+blueColor = "#60A5FA"
+violetColor = "#A78BFA"
+grayColor = "#9AA6B8"
+chartCategoricalColors = ["#19D3C5", "#60A5FA", "#A78BFA", "#F5A524", "#22C55E", "#F2555A"]
+
+[theme.sidebar]
+backgroundColor = "#111722"
+secondaryBackgroundColor = "#182130"
+
+[client]
+toolbarMode = "minimal"
+showSidebarNavigation = true
+
+[browser]
+gatherUsageStats = false
+
+[server]
+runOnSave = false

@@ -1,7 +1,6 @@
-# StockPulse Dashboard — Streamlit Cloud compatible dependencies
-# Heavy BDA pipeline deps (pyspark, happybase, kafka-python, kagglehub)
-# are intentionally excluded — the dashboard reads pre-generated CSV artifacts only.
-
+# StockPulse Dashboard — Streamlit Cloud Compatible Dependencies
+# Heavy BDA cluster pipeline deps (pyspark, happybase, kafka-python, kagglehub)
+# are isolated in requirements-bda.txt — the dashboard consumes pre-generated data lake artifacts.
 streamlit>=1.28.0
 pandas>=2.0.0
 numpy>=1.24.0

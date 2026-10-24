@@ -1,0 +1,16 @@
+# Reliance Stock BDA Platform - Full Big Data Pipeline Dependencies
+# Used for running the complete distributed cluster pipeline:
+# PySpark 3.4.1, Apache Pig ETL, Hadoop MapReduce, Apache Kafka, HBase Serving Store, Kagglehub
+kagglehub>=0.2.0
+pandas>=2.0.0
+numpy>=1.24.0
+yfinance>=0.2.30
+textblob>=0.17.1
+kafka-python>=2.0.2
+pyspark==3.4.1
+happybase>=1.2.0
+streamlit>=1.28.0
+plotly>=5.18.0
+scikit-learn>=1.3.0
+requests>=2.31.0
+python-dotenv>=1.0.0
