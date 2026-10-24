@@ -288,6 +288,10 @@
 
   > All project artifacts, source code, demo recordings, and research references are publicly accessible below.
 
+- **🌐 Hosted Live App:**
+  - [stock-pulse-01.streamlit.app](https://stock-pulse-01.streamlit.app/)
+  - Live interactive StockPulse dashboard deployed on Streamlit Community Cloud — fully accessible without any local setup.
+
 - **📽️ Project Demo:**
   - [StockPulse Demo Video (Google Drive)](https://drive.google.com/file/d/1s5VqGVlbkMA3KXdryaGd1MESbOuFep62/view?usp=sharing)
   - Full end-to-end walkthrough of the Streamlit dashboard, live scoring pipeline, backtest replay, and Docker cluster.
