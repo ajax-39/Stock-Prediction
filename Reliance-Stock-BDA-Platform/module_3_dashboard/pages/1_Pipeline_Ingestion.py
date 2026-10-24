@@ -48,16 +48,6 @@ with m3:
 with m4:
     C.metric("Clean Curated Records", "6,609,300", sub="78% storage compression into Parquet")
 
-# Data Quality Health Matrix
-q1, q2, q3, q4 = st.columns(4)
-with q1:
-    C.metric("Missing Values", "0", sub="100% complete across all feature tables")
-with q2:
-    C.metric("Duplicate Dates", "0", sub="strictly unique (symbol, date) row keys")
-with q3:
-    C.metric("Date Gaps > 5 Days", "0", sub="continuous trading calendar maintained")
-with q4:
-    C.metric("News → Price Join", "100%", sub="synchronized news polarity on trading sessions")
 
 # -----------------------------------------------------------------------------
 # 3. Cluster Stage Status Table

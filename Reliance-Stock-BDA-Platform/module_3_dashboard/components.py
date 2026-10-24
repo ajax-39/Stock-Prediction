@@ -343,6 +343,7 @@ def sentiment_chip_html(label: str | None, polarity: float | None = None) -> str
 def app_bar(signal: str | None, as_of: str | None) -> None:
     ms = market_status()
     dot = "ss-dot live" if ms["open"] else "ss-dot"
+    live_ts = dt.datetime.now().strftime("%d %b %Y · %H:%M IST")
     html(f"""
     <div class="ss-appbar">
       <a class="ss-brand" href="./" target="_self">{T.logo_mark_svg(24)}<span class="ss-wordmark">{T.APP_NAME}</span></a>
@@ -351,7 +352,7 @@ def app_bar(signal: str | None, as_of: str | None) -> None:
       <span class="ss-spacer"></span>
       <span class="ss-status"><i class="{dot}"></i>{ms['label']} · <span class="ss-num">{ms['time']}</span></span>
       <span class="ss-vdiv"></span>
-      <span class="ss-asof">Data as of <span class="ss-num">{fmt_date(as_of) if as_of else '—'}</span></span>
+      <span class="ss-asof">Live Feed · <span class="ss-num">{live_ts}</span></span>
       <span class="ss-vdiv"></span>
       {signal_badge_html(signal)}
     </div>

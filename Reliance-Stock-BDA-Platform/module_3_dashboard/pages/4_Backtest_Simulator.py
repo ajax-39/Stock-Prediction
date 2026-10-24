@@ -53,8 +53,8 @@ def reset_replay() -> None:
 # -----------------------------------------------------------------------------
 h1, h2 = st.columns([2.6, 1.2], vertical_alignment="bottom")
 with h1:
-    C.page_title("Backtest replay", "Replays the model's next-day calls session by session, executes BUY / SELL at the close, "
-                 "and marks the portfolio to market. Computations are unchanged from simulator_engine.py.")
+    C.page_title("Backtest Simulator · Reliance Industries (RELIANCE.NS)",
+                 "Day-by-day walk-forward replay for Reliance Industries Limited (RELIANCE.NS), modeling ₹100,000 portfolio capital, automated stop-losses, and equity curve.")
 with h2:
     chosen = st.selectbox("Backtesting horizon", list(HORIZONS), index=list(HORIZONS).index(ss.horizon_choice), key="horizon_select")
     if chosen != ss.horizon_choice:
@@ -215,7 +215,7 @@ with call_col:
         else:
             banner = ("cash", "<b>In cash</b> · 0 shares held, no market exposure")
         C.html(f"""
-        <div class="ss-label"><span>Tomorrow's call</span><span class="r">target {C.fmt_date(next_date) if next_date != "next session" else next_date}</span></div>
+        <div class="ss-label"><span>Tomorrow's Call · Reliance (RELIANCE.NS)</span><span class="r">target {C.fmt_date(next_date) if next_date != "next session" else next_date}</span></div>
         <div class="ss-bridge"><span>Yesterday <b>{C.inr(state['prev_close'])}</b></span><span class="arr">›</span>
           <span>Today <b>{C.inr(state['current_close'])}</b> <span class="ss-num {C.tone_for(day_d)}">{C.glyph_for(day_d)} {C.pct(day_dp)}</span></span><span class="arr">›</span>
           <span>Tomorrow <b class="ss-accent">{C.inr(state['predicted_close'])}</b></span></div>
